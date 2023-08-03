@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:ebooks/api/my_api.dart';
-import 'package:ebooks/components/text_widget.dart';
 import 'package:ebooks/pages/nav_main.dart';
+import 'package:ebooks/widget/bezier_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +22,7 @@ const snackBar2 = SnackBar(
 class _SignInState extends State<SignIn> {
   var loggedIn = false;
   bool isButtonEnabled = true;
+  bool isVisible = false;
   // late bool _isLoading = false;
   TextEditingController textController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -79,6 +80,184 @@ class _SignInState extends State<SignIn> {
     });
   }
 
+  Widget _title() {
+    return RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(
+          text: 'ICT',
+          style: GoogleFonts.prompt(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFFA83376),
+          ),
+          children: [
+            TextSpan(
+              text: '-e',
+              style: GoogleFonts.prompt(
+                color: Colors.black,
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextSpan(
+              text: 'Book',
+              style: GoogleFonts.prompt(
+                color: const Color(0xFFA83376),
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ]),
+    );
+  }
+
+  Widget _entryField(String title, {bool isPassword = false}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          // TextField(
+          //   controller: title == "Email" ? emailController : textController,
+          //   obscureText: isPassword,
+          //   decoration: const InputDecoration(
+          //       border: InputBorder.none,
+          //       fillColor: Color(0xfff3f3f4),
+          //       filled: true),
+          // ),
+          Stack(
+            children: [
+              TextField(
+                controller: title == "Email" ? emailController : textController,
+                obscureText: title == "Password" ? isVisible : false,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  fillColor: Color(0xfff3f3f4),
+                  filled: true,
+                ),
+              ),
+              if (title == "Password")
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        isVisible = !isVisible;
+                      });
+                    },
+                    icon: Icon(
+                      isVisible ? Icons.visibility : Icons.visibility_off,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _emailPasswordWidget() {
+    return Column(
+      children: <Widget>[
+        _entryField("Email"),
+        _entryField("Password", isPassword: true),
+      ],
+    );
+  }
+
+  Widget _submitButton() {
+    return GestureDetector(
+      onTap: isButtonEnabled
+          ? () {
+              if (textController.text.isEmpty || emailController.text.isEmpty) {
+                EasyLoading.showToast(
+                  'Fill all fields!',
+                  toastPosition: EasyLoadingToastPosition.bottom,
+                );
+              } else {
+                setState(() {
+                  isButtonEnabled = false;
+                });
+                _login();
+              }
+            }
+          : null,
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(5)),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+                color: Colors.grey.shade200,
+                offset: const Offset(2, 4),
+                blurRadius: 5,
+                spreadRadius: 2)
+          ],
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: isButtonEnabled
+                ? [
+                    const Color.fromARGB(255, 207, 46, 137),
+                    const Color(0xff500a34)
+                  ]
+                : [Colors.grey, Colors.grey],
+          ),
+        ),
+        child: const Text(
+          'Login',
+          style: TextStyle(fontSize: 20, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  // Widget _createAccountLabel() {
+  //   return InkWell(
+  //     onTap: () {
+  //       // Navigator.push(
+  //       //     context, MaterialPageRoute(builder: (context) => SignUpPage()));
+  //     },
+  //     child: Container(
+  //       margin: const EdgeInsets.symmetric(vertical: 20),
+  //       padding: const EdgeInsets.all(15),
+  //       alignment: Alignment.bottomCenter,
+  //       child: const Row(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: <Widget>[
+  //           Text(
+  //             'Don\'t have an account ?',
+  //             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+  //           ),
+  //           SizedBox(
+  //             width: 10,
+  //           ),
+  //           Text(
+  //             'Register',
+  //             style: TextStyle(
+  //                 color: Color.fromARGB(179, 207, 46, 137),
+  //                 fontSize: 13,
+  //                 fontWeight: FontWeight.w600),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
@@ -92,116 +271,55 @@ class _SignInState extends State<SignIn> {
         child: SafeArea(
           child: Scaffold(
             resizeToAvoidBottomInset: false,
-            body: Container(
-              padding: const EdgeInsets.only(left: 30, right: 30),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    SizedBox(height: height * 0.1),
-                    CircleAvatar(
-                      radius: 70,
-                      backgroundColor: Colors.transparent,
-                      child: Image.asset("img/liceo-logo.png"),
-                    ),
-                    const SizedBox(
-                      height: 40,
-                    ),
-                    TextInput(
-                        textString: "Email",
-                        textController: emailController,
-                        hint: "Email"),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    TextInput(
-                      textString: "Password",
-                      textController: textController,
-                      hint: "Password",
-                      obscureText: true,
-                    ),
-                    SizedBox(
-                      height: height * .05,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Sign in',
-                          style: GoogleFonts.prompt(
-                            textStyle: const TextStyle(
-                              color: Color(0xFF99135F),
-                              fontWeight: FontWeight.w900,
-                              fontSize: 26,
+            body: SizedBox(
+              height: height,
+              // padding: const EdgeInsets.only(left: 30, right: 30),
+              child: Stack(
+                children: <Widget>[
+                  Positioned(
+                      top: -height * .15,
+                      right: -MediaQuery.of(context).size.width * .4,
+                      child: const BezierContainer()),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: <Widget>[
+                          SizedBox(height: height * 0.1),
+                          CircleAvatar(
+                            radius: 70,
+                            backgroundColor: Colors.transparent,
+                            child: Image.asset("img/liceo-logo.png"),
+                          ),
+                          _title(),
+                          const SizedBox(
+                            height: 50,
+                          ),
+                          _emailPasswordWidget(),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          _submitButton(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            alignment: Alignment.centerRight,
+                            child: GestureDetector(
+                              child: const Text('Forgot Password ?',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500)),
+                              onTap: () {
+                                EasyLoading.showInfo(
+                                    'Please inform the school authority or your teacher for further assistance.');
+                              },
                             ),
                           ),
-                        ),
-                        GestureDetector(
-                          onTap: isButtonEnabled
-                              ? () {
-                                  if (textController.text.isEmpty ||
-                                      emailController.text.isEmpty) {
-                                    EasyLoading.showToast(
-                                      'Fill all fields!',
-                                      toastPosition:
-                                          EasyLoadingToastPosition.bottom,
-                                    );
-                                  } else {
-                                    setState(() {
-                                      isButtonEnabled = false;
-                                    });
-                                    _login();
-                                  }
-                                }
-                              : null,
-                          child: Container(
-                            height: 60,
-                            width: 60,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: isButtonEnabled
-                                  ? const Color(0xFF99135F)
-                                  : Colors.grey,
-                            ),
-                            child: const Icon(Icons.arrow_forward,
-                                color: Colors.white, size: 30),
-                          ),
-                        )
-                      ],
+                          // _createAccountLabel(),
+                        ],
+                      ),
                     ),
-                    SizedBox(
-                      height: height * .1,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            EasyLoading.showInfo(
-                                'Sign up is temporarily unavailable!');
-                          },
-                          child: const TextWidget(
-                            color: Color(0xFF99135F),
-                            text: "Sign up",
-                            fontSize: 16,
-                            isUnderLine: true,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            EasyLoading.showInfo(
-                                'Pls inform the authority or your teacher if you forgot your credentials!');
-                          },
-                          child: const TextWidget(
-                            color: Color(0xFF99135F),
-                            text: "Forgot Password",
-                            fontSize: 16,
-                            isUnderLine: true,
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

@@ -394,13 +394,13 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
             text: item.title,
             icon: item.icon,
             onClicked: () {
+              logout();
               Navigator.pop(context);
               Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
                     builder: (context) => const SignIn(),
                   ),
                   (Route<dynamic> route) => false);
-              logout();
             },
           );
         },

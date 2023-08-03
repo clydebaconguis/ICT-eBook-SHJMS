@@ -576,7 +576,7 @@ class _DetailBookPageState extends State<DetailBookPage> {
                                   ? () {
                                       if (lowStorage) {
                                         EasyLoading.showInfo(
-                                            'low storage! \npls clean your phone!');
+                                            'Not enough storage. Please clean your phone!');
                                       } else {
                                         setState(() {
                                           isButtonEnabled = false;

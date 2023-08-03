@@ -71,6 +71,13 @@ class _NavPdfState extends State<NavPdf> {
     getUser();
     restrictScreenshot();
     _openDrawerAutomatically();
+    _videoPlayerController = VideoPlayerController.file(File(''));
+    _chewieController = ChewieController(
+      videoPlayerController: _videoPlayerController,
+      // autoPlay: true,
+      // looping: true,
+      // Other customization options can be added here
+    );
     super.initState();
   }
 
@@ -132,6 +139,7 @@ class _NavPdfState extends State<NavPdf> {
         playVidOnline(path);
       }
     });
+    Navigator.pop(context);
   }
 
   String getFileExtension(String url) {
@@ -179,10 +187,15 @@ class _NavPdfState extends State<NavPdf> {
             actions: [
               IconButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const NavMain()),
-                  );
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => const NavMain()),
+                  // );
+                  Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => const MyNav(),
+                      ),
+                      (Route<dynamic> route) => false);
                 },
                 icon: const Icon(Icons.home_filled),
               ),

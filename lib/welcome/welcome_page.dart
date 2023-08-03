@@ -107,9 +107,10 @@ class _WelcomePageState extends State<WelcomePage> {
           Container(
             height: MediaQuery.of(context).size.height / 2,
             decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage("img/background-welcome.png"),
-                    fit: BoxFit.fill)),
+              image: DecorationImage(
+                  image: AssetImage("img/background-welcome.png"),
+                  fit: BoxFit.contain),
+            ),
           ),
           _buildRow(
             [
