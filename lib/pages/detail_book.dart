@@ -291,15 +291,19 @@ class _DetailBookPageState extends State<DetailBookPage> {
     setState(() {
       isButtonEnabled = true;
     });
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
         builder: (context) => MyNav2(
           books: PdfTile(
-              title: widget.bookInfo.title, path: path, isExpanded: false),
+            title: widget.bookInfo.title,
+            path: path,
+            isExpanded: false,
+          ),
           path: '',
         ),
       ),
+      (route) => false, // Remove all previous routes
     );
   }
 

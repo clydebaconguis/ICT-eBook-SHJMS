@@ -162,7 +162,7 @@ class _WelcomePageState extends State<WelcomePage> {
             child: Stack(
               children: [
                 Positioned(
-                  height: 80,
+                  height: 60,
                   bottom: 80,
                   left: (MediaQuery.of(context).size.width - 200) / 2,
                   right: (MediaQuery.of(context).size.width - 200) / 2,
@@ -175,7 +175,7 @@ class _WelcomePageState extends State<WelcomePage> {
                           (Route<dynamic> route) => false);
                     },
                     child: Container(
-                      height: 80,
+                      height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(50),
                         color: const Color(0xffcf167f),
@@ -189,7 +189,7 @@ class _WelcomePageState extends State<WelcomePage> {
                               textStyle: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w900,
-                                  fontSize: 25),
+                                  fontSize: 20),
                             ),
                           ),
                         ],
