@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -6,11 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../user/user.dart';
 import '../user/user_data.dart';
-// import '../widget/display_image_widget.dart';
-import 'edit_description.dart';
-// import 'edit_email.dart';
-// import 'edit_name.dart';
-// import 'edit_phone.dart';
 
 // This class handles the Page to dispaly the user's info on the "Edit Profile" Screen
 class ProfilePage extends StatefulWidget {
@@ -44,6 +38,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        backgroundColor: Colors.white,
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           leading: IconButton(
@@ -84,6 +79,9 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(
+                height: 5,
+              ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -158,40 +156,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ],
               )
-
-              // SizedBox(height: height * 0.05),
-              // InkWell(
-              //   onTap: () {
-              //     // navigateSecondPage(EditImagePage(
-              //     //   user: user,
-              //     // ));
-              //   },
-              //   child: DisplayImage(
-              //     imagePath: 'img/anonymous.jpg',
-              //     onPressed: () {},
-              //   ),
-              // ),
-              // buildUserInfoDisplay(
-              //   user.name,
-              //   'Name',
-              //   EditNameFormPage(user: user),
-              // ),
-              // buildUserInfoDisplay(
-              //   user.mobilenum,
-              //   'Phone',
-              //   EditPhoneFormPage(user: user),
-              // ),
-              // buildUserInfoDisplay(
-              //   grade,
-              //   'Grade Level',
-              //   EditPhoneFormPage(user: user),
-              // ),
-              // buildUserInfoDisplay(
-              //   user.email,
-              //   'Email',
-              //   EditEmailFormPage(user: user),
-              // ),
-              // buildAbout(user),
             ],
           ),
         ),
@@ -229,124 +193,5 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ],
     );
-  }
-
-  // Widget builds the display item with the proper formatting to display the user's info
-  Widget buildUserInfoDisplay(String getValue, String title, Widget editPage) =>
-      Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(
-              height: 1,
-            ),
-            Container(
-              width: 350,
-              height: 40,
-              decoration: const BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(
-                color: Colors.grey,
-                width: 1,
-              ))),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: TextButton(
-                          onPressed: () {
-                            // navigateSecondPage(editPage);
-                          },
-                          child: Text(
-                            getValue,
-                            style: const TextStyle(
-                                fontSize: 16,
-                                height: 1.4,
-                                color: Color(0xFFCF167F)),
-                          ))),
-                  const Icon(
-                    Icons.keyboard_arrow_right,
-                    color: Colors.grey,
-                    size: 40.0,
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
-      );
-
-  // Widget builds the About Me Section
-  Widget buildAbout(User user) => Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Tell Us About Yourself',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(height: 1),
-          Container(
-              width: 350,
-              height: 200,
-              decoration: const BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(
-                color: Colors.grey,
-                width: 1,
-              ))),
-              child: Row(children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () {
-                      navigateSecondPage(const EditDescriptionFormPage());
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 10, 10, 10),
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          user.aboutMeDescription,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            height: 1.4,
-                            color: Color(0xFFCF167F),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const Icon(
-                  Icons.keyboard_arrow_right,
-                  color: Colors.grey,
-                  size: 40.0,
-                )
-              ]))
-        ],
-      ));
-
-  // Refrshes the Page after updating user info.
-  FutureOr onGoBack(dynamic value) {
-    setState(() {});
-  }
-
-  // Handles navigation and prompts refresh.
-  void navigateSecondPage(Widget editForm) {
-    Route route = MaterialPageRoute(builder: (context) => editForm);
-    Navigator.push(context, route).then(onGoBack);
   }
 }

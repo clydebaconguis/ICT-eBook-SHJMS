@@ -54,6 +54,40 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     // EasyLoading.dismiss();
   }
 
+  Future<void> showLogoutConfirmationDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                // Close the dialog and do nothing (cancel logout)
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Close the dialog and perform logout
+                Navigator.of(context).pop();
+                logout();
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const SignIn(),
+                    ),
+                    (Route<dynamic> route) => false);
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final safeArea =
@@ -394,13 +428,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
             text: item.title,
             icon: item.icon,
             onClicked: () {
-              logout();
-              Navigator.pop(context);
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) => const SignIn(),
-                  ),
-                  (Route<dynamic> route) => false);
+              showLogoutConfirmationDialog(context);
             },
           );
         },

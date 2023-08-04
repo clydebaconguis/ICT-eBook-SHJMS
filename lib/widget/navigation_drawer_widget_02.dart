@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:ebooks/app_util.dart';
-// import 'package:ebooks/data/drawer_items.dart';
+import 'package:ebooks/data/drawer_items.dart';
 import 'package:ebooks/models/drawer_item.dart';
 import 'package:ebooks/pages/nav_main.dart';
 import 'package:ebooks/provider/navigation_provider2.dart';
@@ -236,6 +236,33 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
     });
   }
 
+  // Custom comparator function
+  int customComparator(PdfTile a, PdfTile b) {
+    bool aIsLetter = a.title[0].toUpperCase() != a.title[0].toLowerCase();
+    bool bIsLetter = b.title[0].toUpperCase() != b.title[0].toLowerCase();
+    bool aIsColon = a.title[0] == ':';
+    bool bIsColon = b.title[0] == ':';
+    bool aContainsConsecutiveNumbers = RegExp(r'\d{2}').hasMatch(a.title);
+    bool bContainsConsecutiveNumbers = RegExp(r'\d{2}').hasMatch(b.title);
+
+    if (!aContainsConsecutiveNumbers && bContainsConsecutiveNumbers) {
+      return -1; // a comes before b (a doesn't contain consecutive numbers)
+    } else if (aContainsConsecutiveNumbers && !bContainsConsecutiveNumbers) {
+      return 1; // b comes before a (b doesn't contain consecutive numbers)
+    } else if (aIsLetter && !bIsLetter) {
+      return -1; // a comes before b (b contains consecutive numbers)
+    } else if (!aIsLetter && bIsLetter) {
+      return 1; // b comes before a (a contains consecutive numbers)
+    } else if (aIsColon && !bIsColon) {
+      return 1; // b comes before a (a is a colon)
+    } else if (!aIsColon && bIsColon) {
+      return -1; // a comes before b (b is a colon)
+    } else {
+      return a.title
+          .compareTo(b.title); // If both are letters or numbers, sort normally
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final int currentYear = DateTime.now().year;
@@ -244,11 +271,9 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
 
     final provider = Provider.of<NavigationProvider2>(context);
     var isCollapsed = provider.isCollapsed;
-    files.sort((a, b) => a.title.compareTo(b.title));
-    // for (var element in files) {
-    //   // print(element.title);
-    // }
-
+    // files.sort((a, b) => a.title.compareTo(b.title));
+    // Sort the files list using the custom comparator function
+    files.sort(customComparator);
     return SizedBox(
       width: isCollapsed ? MediaQuery.of(context).size.width * 0.2 : null,
       child: Drawer(
@@ -271,13 +296,11 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                 color: Colors.white12,
                 child: buildHeader(isCollapsed),
               ),
-              // const SizedBox(height: 5),
-              // buildList(items: itemsFirst3, isCollapsed: isCollapsed),
-
-              // const Divider(
-              //   color: Colors.white24,
-              // ),
-
+              const SizedBox(height: 5),
+              buildList(items: itemsFirst3, isCollapsed: isCollapsed),
+              const Divider(
+                color: Colors.white24,
+              ),
               Container(
                 padding: const EdgeInsets.only(left: 10.0, right: 8.0),
                 child: TextField(
@@ -300,11 +323,9 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                   ),
                 ),
               ),
-
               const Divider(
                 color: Colors.white24,
               ),
-
               Expanded(
                 child: SingleChildScrollView(
                   child: files.isNotEmpty && !searchActivate
@@ -390,23 +411,6 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
     );
   }
 
-  // onClick(String path, String title) {
-
-  //   // Navigator.of(context).pushAndRemoveUntil(
-  //   //     MaterialPageRoute(
-  //   //       builder: (context) => MyNav2(
-  //   //         path: path,
-  //   //         books: PdfTile(
-  //   //           title: title,
-  //   //           path: '',
-  //   //           isExpanded: false,
-  //   //         ),
-  //   //       ),
-  //   //     ),
-  //   //     (Route<dynamic> route) => false);
-  //   // print(path);
-  // }
-
   Widget buildTile2({
     required bool isCollapsed,
     required List<PdfTile> items,
@@ -461,7 +465,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                 widget.updateData(path, text);
               },
               title: Text(
-                text,
+                removeFileExtension(text),
                 style: TextStyle(
                     color:
                         selectedPdf == text ? Colors.greenAccent : Colors.white,
@@ -493,7 +497,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                   title: elem.title, path: elem.path, isExpanded: false));
             }
           }
-          c2.sort((a, b) => a.title.compareTo(b.title));
+          c2.sort(customComparator);
 
           return buildMenuItemTiles(
             item: item,
@@ -545,7 +549,8 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
         Icon(Icons.play_circle_outline, color: Colors.greenAccent);
     const leadingVid = Icon(Icons.play_circle_outline, color: Colors.orange);
     final leading = Icon(icon, color: color2);
-    child.sort((a, b) => a.title.compareTo(b.title));
+    child.sort(customComparator);
+    innerChild.sort(customComparator);
 
     return Material(
       color: Colors.transparent,
@@ -730,7 +735,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
   }
 
   String removeFileExtension(String fileName) {
-    int dotIndex = fileName.lastIndexOf('.');
+    int dotIndex = fileName.lastIndexOf('_');
     if (dotIndex != -1) {
       return fileName.substring(0, dotIndex);
     } else {

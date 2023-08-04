@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:ebooks/api/my_api.dart';
 import 'package:ebooks/pages/nav_main.dart';
@@ -33,16 +32,14 @@ class _SignInState extends State<SignIn> {
   }
 
   _navigateToBooks() {
-    EasyLoading.showSuccess('Great Success!');
-    Timer(const Duration(milliseconds: 200), () {
-      // <-- Delay here
-      EasyLoading.dismiss();
+    if (mounted) {
+      EasyLoading.showSuccess('Successfully loggedin!');
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) => const MyNav(),
           ),
           (Route<dynamic> route) => false);
-    });
+    }
   }
 
   _login() async {

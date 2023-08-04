@@ -15,7 +15,7 @@ final itemsFirst2 = [
   // DrawerItem(title: 'Performance & Optimization', icon: Icons.build),
 ];
 final itemsFirst3 = [
-  const DrawerItem(title: 'Home', icon: Icons.home_rounded),
+  const DrawerItem(title: 'Home', icon: Icons.home_filled),
   // DrawerItem(title: 'Testing & Debugging', icon: Icons.settings_applications),
   // DrawerItem(title: 'Performance & Optimization', icon: Icons.build),
 ];

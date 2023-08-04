@@ -235,7 +235,7 @@ class _AllBooksState extends State<AllBooks> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => MyNav2(
+                                        builder: (context) => NavPdf(
                                           books: file,
                                           path: '',
                                         ),

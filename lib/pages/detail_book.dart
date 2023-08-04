@@ -29,8 +29,6 @@ class DetailBookPage extends StatefulWidget {
 
 class _DetailBookPageState extends State<DetailBookPage> {
   String mainHost = CallApi().getHost();
-  // List<Lessons> lessons = [];
-  bool _isLoading = false;
   double _diskSpace = 0;
   bool lowStorage = false;
   var parts = [];
@@ -38,6 +36,8 @@ class _DetailBookPageState extends State<DetailBookPage> {
   var lessons = [];
   var bookCoverUrl = '';
   bool isButtonEnabled = true;
+  List<Future<void>> futures = [];
+  var lessonLength = 0;
 
   // getMyDomain() async {
   //   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -142,36 +142,35 @@ class _DetailBookPageState extends State<DetailBookPage> {
   _fetchParts() async {
     CallApi().getPublicData('bookchapter2/${widget.bookInfo.bookid}').then(
       (response) {
-        setState(
-          () {
-            var results = json.decode(response.body);
-            // print(results);
-            parts = results['parts'] ?? [];
-            // print(parts);
-            chapters = results['chapters'] ?? [];
-            // print(chapters);
-            lessons = results['lessons'] ?? [];
-            bookCoverUrl = results['bookcover'] ?? '';
-            // print(bookCoverUrl);
-            // print(lessons);
-          },
-        );
+        if (mounted) {
+          setState(
+            () {
+              var results = json.decode(response.body);
+              // print(results);
+              parts = results['parts'] ?? [];
+              // print(parts);
+              chapters = results['chapters'] ?? [];
+              // print(chapters);
+              lessons = results['lessons'] ?? [];
+              bookCoverUrl = results['bookcover'] ?? '';
+              // print(bookCoverUrl);
+              // print(lessons);
+              lessonLength = lessons.length;
+              // print(lessonLength);
+            },
+          );
+        }
       },
     );
   }
 
   _downloadPdf() async {
     try {
-      EasyLoading.show(status: "Preparing...");
       final Directory appDir = await getApplicationSupportDirectory();
       var imgPathLocal = "${appDir.path}/${widget.bookInfo.title}/cover_image";
-      setState(() {
-        _isLoading = true;
-      });
-      _isLoading = true;
       var exist = await fileExist(widget.bookInfo.title);
       if (exist) {
-        EasyLoading.dismiss();
+        EasyLoading.show(status: "Preparing...");
         saveCurrentBook(widget.bookInfo.title);
         navigateToMainNav(imgPathLocal);
       } else {
@@ -196,8 +195,6 @@ class _DetailBookPageState extends State<DetailBookPage> {
                       Directory("${newPart.path}${chapter['title']}/");
                   final Directory newChap =
                       await chapDirFolder.create(recursive: true);
-
-                  List<Future<void>> futures = [];
                   if (lessons.isNotEmpty) {
                     for (var lesson in lessons) {
                       if (lesson['chapterid'] != null &&
@@ -205,19 +202,30 @@ class _DetailBookPageState extends State<DetailBookPage> {
                         if (lesson['path'] != null &&
                             lesson['path'].isNotEmpty) {
                           for (var lessonFileItem in lesson['path']) {
-                            futures.add(
-                              downloadPdFiles(
-                                lessonFileItem['filepath'],
-                                lessonFileItem['content'],
-                                '${newChap.path}${lessonFileItem['content']}',
-                              ),
-                            );
+                            EasyLoading.show(
+                                status:
+                                    "Downloading ${lessonFileItem['content']}");
+                            if (mounted) {
+                              setState(() {
+                                futures.add(
+                                  downloadPdFiles(
+                                    lessonFileItem['filepath'],
+                                    lessonFileItem['content'],
+                                    '${newChap.path}${lessonFileItem['content']}',
+                                  ),
+                                );
+                              });
+                            }
+                          }
+                          if (futures.isNotEmpty) {
+                            await Future.wait(futures);
+                          } else {
+                            EasyLoading.showToast("No Content");
                           }
                         }
                       }
                     }
                   }
-                  await Future.wait(futures);
                 }
               }
             }
@@ -232,27 +240,35 @@ class _DetailBookPageState extends State<DetailBookPage> {
                   Directory("${bookNewFolder.path}${chapter['title']}/");
               final Directory newChap =
                   await chapDirFolder.create(recursive: true);
-
-              List<Future<void>> futures = [];
               if (lessons.isNotEmpty) {
                 for (var lesson in lessons) {
                   if (lesson['chapterid'] != null &&
                       lesson['chapterid'] == chapter['id']) {
                     if (lesson['path'] != null && lesson['path'].isNotEmpty) {
                       for (var lessonFileItem in lesson['path']) {
-                        futures.add(
-                          downloadPdFiles(
-                            lessonFileItem['filepath'],
-                            lessonFileItem['content'],
-                            '${newChap.path}${lessonFileItem['content']}',
-                          ),
-                        );
+                        EasyLoading.show(
+                            status: "Downloading ${lessonFileItem['content']}");
+                        if (mounted) {
+                          setState(() {
+                            futures.add(
+                              downloadPdFiles(
+                                lessonFileItem['filepath'],
+                                lessonFileItem['content'],
+                                '${newChap.path}${lessonFileItem['content']}',
+                              ),
+                            );
+                          });
+                        }
+                      }
+                      if (futures.isNotEmpty) {
+                        await Future.wait(futures);
+                      } else {
+                        EasyLoading.showToast("No Content");
                       }
                     }
                   }
                 }
               }
-              await Future.wait(futures);
             }
             saveCurrentBook(widget.bookInfo.title);
             navigateToMainNav("${bookNewFolder.path}cover_image");
@@ -272,29 +288,18 @@ class _DetailBookPageState extends State<DetailBookPage> {
     }
   }
 
-  checkLoading() {
-    if (_isLoading) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Preparing..."),
-        backgroundColor: Colors.pink,
-      ));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Redirecting..."),
-        backgroundColor: Colors.pink,
-      ));
-    }
-  }
-
   navigateToMainNav(String path) {
     EasyLoading.dismiss();
-    setState(() {
-      isButtonEnabled = true;
-    });
-    Navigator.pushAndRemoveUntil(
+    if (mounted) {
+      setState(() {
+        isButtonEnabled = true;
+      });
+    }
+
+    Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MyNav2(
+        builder: (context) => NavPdf(
           books: PdfTile(
             title: widget.bookInfo.title,
             path: path,
@@ -303,7 +308,6 @@ class _DetailBookPageState extends State<DetailBookPage> {
           path: '',
         ),
       ),
-      (route) => false, // Remove all previous routes
     );
   }
 
@@ -368,23 +372,6 @@ class _DetailBookPageState extends State<DetailBookPage> {
                 // backgroundColor: const Color(0xff500a34),
                 title: Row(
                   children: [
-                    // const SizedBox(
-                    //   width: 20,
-                    // ),
-                    // IconButton(
-                    //   padding: EdgeInsets.zero,
-                    //   constraints: const BoxConstraints(),
-                    //   icon:
-                    //       const Icon(Icons.arrow_back_ios, color: Colors.white),
-                    //   onPressed: () => Navigator.of(context).pushAndRemoveUntil(
-                    //       MaterialPageRoute(
-                    //         builder: (context) => const MyNav(),
-                    //       ),
-                    //       (Route<dynamic> route) => false),
-                    // ),
-                    // const SizedBox(
-                    //   width: 10,
-                    // ),
                     Expanded(
                       child: Text(
                         widget.bookInfo.title,
@@ -408,26 +395,6 @@ class _DetailBookPageState extends State<DetailBookPage> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      // Container(
-                      //   padding: const EdgeInsets.only(left: 0, right: 30),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //     children: [
-                      //       IconButton(
-                      //         padding: EdgeInsets.zero,
-                      //         constraints: const BoxConstraints(),
-                      //         icon: const Icon(Icons.arrow_back_ios,
-                      //             color: Color(0xff232324)),
-                      //         onPressed: () =>
-                      //             Navigator.of(context).pushAndRemoveUntil(
-                      //                 MaterialPageRoute(
-                      //                   builder: (context) => const MyNav(),
-                      //                 ),
-                      //                 (Route<dynamic> route) => false),
-                      //       )
-                      //     ],
-                      //   ),
-                      // ),
                       const SizedBox(
                         height: 50,
                       ),
@@ -519,6 +486,17 @@ class _DetailBookPageState extends State<DetailBookPage> {
                                 //   fontSize: 22,
                                 // ),
                                 const Divider(color: Colors.grey),
+                                lessonLength > 0
+                                    ? Text(
+                                        "Lessons: $lessonLength items",
+                                        style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Colors.black54,
+                                        ),
+                                      )
+                                    : const CircularProgressIndicator(),
+                                const Divider(color: Colors.grey),
                                 Text(
                                   "Author : CK Children's Publishing",
                                   style: GoogleFonts.poppins(
@@ -582,9 +560,11 @@ class _DetailBookPageState extends State<DetailBookPage> {
                                         EasyLoading.showInfo(
                                             'Not enough storage. Please clean your phone!');
                                       } else {
-                                        setState(() {
-                                          isButtonEnabled = false;
-                                        });
+                                        if (mounted) {
+                                          setState(() {
+                                            isButtonEnabled = false;
+                                          });
+                                        }
                                         _downloadPdf();
                                       }
                                     }
@@ -604,12 +584,6 @@ class _DetailBookPageState extends State<DetailBookPage> {
                                     bottom: 10.0,
                                   ),
                                   alignment: Alignment.center),
-                              // child: const Text(
-                              //   "View Book",
-                              //   style: TextStyle(
-                              //     fontSize: 20,
-                              //   ),
-                              // ),
                               child: Text(
                                 "View Book",
                                 style: GoogleFonts.prompt(
@@ -620,10 +594,6 @@ class _DetailBookPageState extends State<DetailBookPage> {
                                 ),
                               ),
                             ),
-                            // Expanded(child: Container()),
-                            // const IconButton(
-                            //     icon: Icon(Icons.arrow_forward_ios),
-                            //     onPressed: null)
                           ],
                         ),
                       ),
