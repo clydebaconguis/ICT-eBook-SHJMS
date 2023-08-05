@@ -3,29 +3,18 @@ import 'package:ebooks/provider/navigation_provider.dart';
 import 'package:ebooks/signup_login/sign_in.dart';
 import 'package:ebooks/widget/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyNav extends StatelessWidget {
-  static const String title = 'Demo';
-
   const MyNav({super.key});
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
         create: (_) => NavigationProvider(),
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: title,
-          // theme: ThemeData(
-          //   textTheme: GoogleFonts.poppinsTextTheme(
-          //     Theme.of(context).textTheme,
-          //   ),
-          // ),
-          home: const NavMain(),
-          builder: EasyLoading.init(),
+        child: const SafeArea(
+          child: NavMain(),
         ),
       );
 }

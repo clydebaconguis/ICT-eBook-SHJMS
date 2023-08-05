@@ -4,7 +4,6 @@ import 'package:ebooks/data/drawer_items.dart';
 import 'package:ebooks/models/drawer_item.dart';
 import 'package:ebooks/pages/nav_main.dart';
 import 'package:ebooks/pages/profile_page.dart';
-import 'package:ebooks/pages/settings.dart';
 import 'package:ebooks/provider/navigation_provider.dart';
 import 'package:ebooks/signup_login/sign_in.dart';
 import 'package:flutter/material.dart';
@@ -303,9 +302,6 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
         break;
       case 1:
         navigateTo(const ProfilePage());
-        break;
-      case 2:
-        navigateTo(const Setting());
         break;
     }
   }

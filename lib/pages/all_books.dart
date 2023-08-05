@@ -344,17 +344,6 @@ class _AllBooksState extends State<AllBooks> {
                                                   maxLines: 3,
                                                   softWrap: true,
                                                 ),
-                                                // Text(
-                                                //   file.title,
-                                                //   style: const TextStyle(
-                                                //     fontSize: 17,
-                                                //     fontWeight: FontWeight.bold,
-                                                //     color: Color(0xff292735),
-                                                //   ),
-                                                //   overflow: TextOverflow.ellipsis,
-                                                //   maxLines: 3,
-                                                //   softWrap: true,
-                                                // ),
                                                 const Divider(),
                                                 ListTile(
                                                   contentPadding:

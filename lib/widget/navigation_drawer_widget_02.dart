@@ -10,7 +10,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../main.dart';
 import '../models/pdf_tile.dart';
 
 class NavigationDrawerWidget2 extends StatefulWidget {
@@ -87,9 +86,9 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
         // print(element.path);
         List<PdfTile> secondChild = [];
         if (element.path.isNotEmpty &&
-            splitPath(element.path).toString() != "cover_image") {
+            AppUtil().splitPath(element.path).toString() != "cover_image") {
           // print(element.path);
-          var split = splitPath(element.path);
+          var split = AppUtil().splitPath(element.path);
           var foldrChild2 = await AppUtil().readFilesDir('$currentBook/$split');
           // print(foldrChild2);
           if (foldrChild2 != null) {
@@ -100,12 +99,12 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
               // get the inner if has parts
               // false if no parts and child is a file directory
               //check if its directory
-              var splitted = splitPath(child.path);
+              var splitted = AppUtil().splitPath(child.path);
               bool isDirectory = _checkDirectoryExistsSync(
                   '${dir.path}/$currentBook/$split/$splitted');
               if (child != null && isDirectory) {
                 // print('yes its a directory!');
-                var split2 = splitPath(child.path);
+                var split2 = AppUtil().splitPath(child.path);
                 var foldrChild3 =
                     await AppUtil().readFilesDir('$currentBook/$split/$split2');
                 // print(foldrChild3);
@@ -115,7 +114,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                     setState(() {
                       thirdChild.add(
                         PdfTile(
-                            title: splitPath(item.path),
+                            title: AppUtil().splitPath(item.path),
                             path: item.path,
                             isExpanded: false),
                       );
@@ -126,7 +125,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                   setState(() {
                     secondChild.add(
                       PdfTile(
-                        title: splitPath(child.path),
+                        title: AppUtil().splitPath(child.path),
                         path: child.path,
                         children: thirdChild,
                         isExpanded: false,
@@ -137,7 +136,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                   setState(() {
                     secondChild.add(
                       PdfTile(
-                        title: splitPath(child.path),
+                        title: AppUtil().splitPath(child.path),
                         path: child.path,
                         isExpanded: false,
                       ),
@@ -148,7 +147,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                 setState(() {
                   secondChild.add(
                     PdfTile(
-                      title: splitPath(child.path),
+                      title: AppUtil().splitPath(child.path),
                       path: child.path,
                       isExpanded: false,
                     ),
@@ -160,7 +159,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
           setState(() {
             files.add(
               PdfTile(
-                title: splitPath(element.path),
+                title: AppUtil().splitPath(element.path),
                 path: element.path,
                 children: secondChild,
                 isExpanded: false,

@@ -2,6 +2,7 @@ import 'package:ebooks/pages/nav_main.dart';
 import 'package:ebooks/welcome/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,16 +35,19 @@ class _SplashState extends State<Splash> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: '',
-        home: AnimatedSplashScreen(
-            splashIconSize: 100,
-            duration: 2000,
-            centered: true,
-            splash: 'img/liceo-logo.png',
-            nextScreen: loggedIn ? const MyNav() : const Welcome(),
-            splashTransition: SplashTransition.sizeTransition,
-            pageTransitionType: PageTransitionType.fade,
-            backgroundColor: Colors.white));
+      debugShowCheckedModeBanner: false,
+      title: '',
+      home: AnimatedSplashScreen(
+        splashIconSize: 100,
+        duration: 2000,
+        centered: true,
+        splash: 'img/liceo-logo.png',
+        nextScreen: loggedIn ? const MyNav() : const Welcome(),
+        splashTransition: SplashTransition.sizeTransition,
+        pageTransitionType: PageTransitionType.fade,
+        backgroundColor: Colors.white,
+      ),
+      builder: EasyLoading.init(),
+    );
   }
 }

@@ -42,14 +42,13 @@ class _WelcomePageState extends State<WelcomePage> {
 
   @override
   void initState() {
-    // _initData();
     _checkLoginStatus();
     super.initState();
   }
 
   _checkLoginStatus() async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
-    var token = localStorage.getString('token')!;
+    var token = localStorage.getString('token') ?? '';
     if (token.isNotEmpty) {
       setState(() {
         isLoggedIn = true;

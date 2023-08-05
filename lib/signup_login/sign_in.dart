@@ -258,71 +258,67 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: WillPopScope(
-        onWillPop: () async {
-          // Prevent navigating back by returning false
-          return false;
-        },
-        child: SafeArea(
-          child: Scaffold(
-            resizeToAvoidBottomInset: false,
-            body: SizedBox(
-              height: height,
-              // padding: const EdgeInsets.only(left: 30, right: 30),
-              child: Stack(
-                children: <Widget>[
-                  Positioned(
-                      top: -height * .15,
-                      right: -MediaQuery.of(context).size.width * .4,
-                      child: const BezierContainer()),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: <Widget>[
-                          SizedBox(height: height * 0.1),
-                          CircleAvatar(
-                            radius: 70,
-                            backgroundColor: Colors.transparent,
-                            child: Image.asset("img/liceo-logo.png"),
+
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent navigating back by returning false
+        return false;
+      },
+      child: SafeArea(
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: SizedBox(
+            height: height,
+            // padding: const EdgeInsets.only(left: 30, right: 30),
+            child: Stack(
+              children: <Widget>[
+                Positioned(
+                    top: -height * .15,
+                    right: -MediaQuery.of(context).size.width * .4,
+                    child: const BezierContainer()),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: <Widget>[
+                        SizedBox(height: height * 0.1),
+                        CircleAvatar(
+                          radius: 70,
+                          backgroundColor: Colors.transparent,
+                          child: Image.asset("img/liceo-logo.png"),
+                        ),
+                        _title(),
+                        const SizedBox(
+                          height: 50,
+                        ),
+                        _emailPasswordWidget(),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        _submitButton(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            child: const Text('Forgot Password ?',
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w500)),
+                            onTap: () {
+                              EasyLoading.showInfo(
+                                  'Please inform the school authority or your teacher for further assistance.');
+                            },
                           ),
-                          _title(),
-                          const SizedBox(
-                            height: 50,
-                          ),
-                          _emailPasswordWidget(),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          _submitButton(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(vertical: 18),
-                            alignment: Alignment.centerRight,
-                            child: GestureDetector(
-                              child: const Text('Forgot Password ?',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500)),
-                              onTap: () {
-                                EasyLoading.showInfo(
-                                    'Please inform the school authority or your teacher for further assistance.');
-                              },
-                            ),
-                          ),
-                          // _createAccountLabel(),
-                        ],
-                      ),
+                        ),
+                        // _createAccountLabel(),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
-      builder: EasyLoading.init(),
     );
   }
 }
