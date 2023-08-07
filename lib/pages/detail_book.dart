@@ -10,11 +10,13 @@ import 'package:ebooks/signup_login/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ebooks/api/my_api.dart';
 import 'package:ebooks/models/get_books_info_02.dart';
 import 'package:disk_space_plus/disk_space_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:al_downloader/al_downloader.dart';
 
 class DetailBookPage extends StatefulWidget {
   final Books2 bookInfo;
@@ -36,9 +38,14 @@ class _DetailBookPageState extends State<DetailBookPage> {
   var bookCoverUrl = '';
   bool isButtonEnabled = true;
   bool isButtonEnabled2 = true;
-  List<Future<void>> futures = [];
   var lessonLength = 0;
   var existBook = false;
+  List<Future<void>> futures = [];
+  List<PdfDownloadInfo> pdfDownloadList = [];
+  Directory appDir = Directory('');
+  double downloadProgress = 0.0;
+  String pdfTitle = '';
+  bool downloadEnabled = false;
 
   checkIfBookExist() async {
     if (mounted) {
@@ -70,6 +77,7 @@ class _DetailBookPageState extends State<DetailBookPage> {
     _fetchParts();
     checkIfBookExist();
     super.initState();
+    ALDownloader.initialize();
   }
 
   getToken() async {
@@ -136,6 +144,7 @@ class _DetailBookPageState extends State<DetailBookPage> {
   }
 
   _fetchParts() async {
+    appDir = await getApplicationSupportDirectory();
     CallApi().getPublicData('bookchapter2/${widget.bookInfo.bookid}').then(
       (response) {
         if (mounted) {
@@ -174,145 +183,109 @@ class _DetailBookPageState extends State<DetailBookPage> {
     return '';
   }
 
-  _downloadPdf() async {
+  // Start downloading all PDF
+  Future<void> _downloadPdf() async {
+    setState(() {
+      downloadEnabled = true;
+    });
+    Directory bookNewFolder = Directory('');
     try {
-      final Directory appDir = await getApplicationSupportDirectory();
-      var imgPathLocal = "${appDir.path}/${widget.bookInfo.title}/cover_image";
-      if (existBook) {
-        EasyLoading.show(status: "Preparing...");
-        saveCurrentBook(widget.bookInfo.title);
-        navigateToMainNav(imgPathLocal);
-      } else {
-        final Directory appDirFolder =
-            Directory("${appDir.path}/${widget.bookInfo.title}/");
-        final Directory bookNewFolder =
-            await appDirFolder.create(recursive: true);
-        downloadImage(bookNewFolder.path, "cover_image", bookCoverUrl);
+      final Directory appDirFolder =
+          Directory("${appDir.path}/${widget.bookInfo.title}/");
+      bookNewFolder = await appDirFolder.create(recursive: true);
+      downloadImage(bookNewFolder.path, "cover_image", bookCoverUrl);
 
-        if (parts.isNotEmpty) {
-          for (var part in parts) {
-            // print(part);
-            final Directory partDirFolder =
-                Directory("${bookNewFolder.path}${part['title']}/");
-            final Directory newPart =
-                await partDirFolder.create(recursive: true);
-            if (chapters.isNotEmpty) {
-              for (var chapter in chapters) {
-                if (chapter['partid'] != null &&
-                    chapter['partid'] == part['id']) {
-                  final Directory chapDirFolder =
-                      Directory("${newPart.path}${chapter['title']}/");
-                  final Directory newChap =
-                      await chapDirFolder.create(recursive: true);
-                  if (lessons.isNotEmpty) {
-                    for (var lesson in lessons) {
-                      if (lesson['chapterid'] != null &&
-                          lesson['chapterid'] == chapter['id']) {
-                        if (lesson['path'] != null &&
-                            lesson['path'].isNotEmpty) {
-                          for (var lessonFileItem in lesson['path']) {
-                            if (getFileExtension(lessonFileItem['filepath'])
-                                    .toLowerCase() ==
-                                '.pdf') {
-                              EasyLoading.show(
-                                  status:
-                                      "Downloading ${lessonFileItem['content']}");
-                              if (mounted) {
-                                setState(() {
-                                  futures.add(
-                                    downloadPdFiles(
-                                      lessonFileItem['filepath'],
-                                      lessonFileItem['content'],
-                                      '${newChap.path}${lessonFileItem['content']}',
-                                    ),
-                                  );
-                                });
-                              }
-                            } else {
-                              print("Skipping not a pdf!");
-                            }
-                          }
-                          if (futures.isNotEmpty) {
-                            await Future.wait(futures);
-                          } else {
-                            EasyLoading.showToast("No Content");
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-          EasyLoading.dismiss();
-          saveCurrentBook(widget.bookInfo.title);
-          navigateToMainNav("${bookNewFolder.path}cover_image");
-        } else {
+      if (parts.isNotEmpty) {
+        for (var part in parts) {
+          final Directory partDirFolder =
+              Directory("${bookNewFolder.path}${part['title']}/");
+          final Directory newPart = await partDirFolder.create(recursive: true);
           if (chapters.isNotEmpty) {
             for (var chapter in chapters) {
-              final Directory chapDirFolder =
-                  Directory("${bookNewFolder.path}${chapter['title']}/");
-              final Directory newChap =
-                  await chapDirFolder.create(recursive: true);
-              if (lessons.isNotEmpty) {
-                for (var lesson in lessons) {
-                  if (lesson['chapterid'] != null &&
-                      lesson['chapterid'] == chapter['id']) {
-                    if (lesson['path'] != null && lesson['path'].isNotEmpty) {
-                      for (var lessonFileItem in lesson['path']) {
-                        EasyLoading.show(
-                            status: "Downloading ${lessonFileItem['content']}");
-                        if (mounted) {
-                          setState(() {
-                            futures.add(
-                              downloadPdFiles(
-                                lessonFileItem['filepath'],
-                                lessonFileItem['content'],
-                                '${newChap.path}${lessonFileItem['content']}',
-                              ),
+              if (chapter['partid'] != null &&
+                  chapter['partid'] == part['id']) {
+                final Directory chapDirFolder =
+                    Directory("${newPart.path}${chapter['title']}/");
+                final Directory newChap =
+                    await chapDirFolder.create(recursive: true);
+                if (lessons.isNotEmpty) {
+                  for (var lesson in lessons) {
+                    if (lesson['chapterid'] != null &&
+                        lesson['chapterid'] == chapter['id']) {
+                      if (lesson['path'] != null && lesson['path'].isNotEmpty) {
+                        for (var lessonFileItem in lesson['path']) {
+                          if (getFileExtension(lessonFileItem['filepath'])
+                                  .toLowerCase() ==
+                              '.pdf') {
+                            pdfDownloadList.add(
+                              PdfDownloadInfo(
+                                  '$mainHost${lessonFileItem['filepath']}',
+                                  '${newChap.path}${lessonFileItem['content']}',
+                                  '${lessonFileItem['content']}'),
                             );
-                          });
+                          }
                         }
-                      }
-                      if (futures.isNotEmpty) {
-                        await Future.wait(futures);
-                      } else {
-                        EasyLoading.showToast("No Content");
                       }
                     }
                   }
                 }
               }
             }
-            saveCurrentBook(widget.bookInfo.title);
-            navigateToMainNav("${bookNewFolder.path}cover_image");
-          } else {
-            // print('chapters empty');
           }
         }
-        EasyLoading.dismiss();
-      }
-      if (mounted) {
-        setState(() {
-          existBook = true;
-          isButtonEnabled2 = true;
-        });
+      } else {
+        if (chapters.isNotEmpty) {
+          for (var chapter in chapters) {
+            final Directory chapDirFolder =
+                Directory("${bookNewFolder.path}${chapter['title']}/");
+            final Directory newChap =
+                await chapDirFolder.create(recursive: true);
+            if (lessons.isNotEmpty) {
+              for (var lesson in lessons) {
+                if (lesson['chapterid'] != null &&
+                    lesson['chapterid'] == chapter['id']) {
+                  if (lesson['path'] != null && lesson['path'].isNotEmpty) {
+                    for (var lessonFileItem in lesson['path']) {
+                      if (getFileExtension(lessonFileItem['filepath'])
+                              .toLowerCase() ==
+                          '.pdf') {
+                        pdfDownloadList.add(
+                          PdfDownloadInfo(
+                              '$mainHost${lessonFileItem['filepath']}',
+                              '${newChap.path}${lessonFileItem['content']}',
+                              '${lessonFileItem['content']}'),
+                        );
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     } catch (e) {
-      // Handle the exception
-      // print('Error occurred: $e');
       EasyLoading.showError('Error occurred: $e');
-      // You can handle the error message or show a toast or any other error handling mechanism you prefer.
-      // Example: showToast('An error occurred while downloading the PDF');
-      // showToast is a custom function that shows a toast message using fluttertoast package or any other similar package.
     }
+    final List<Future<void>> downloadFutures = [];
+    // loop all pdf in pdfdownloadlist
+    for (final pdfInfo in pdfDownloadList) {
+      final downloadFuture = downloadPdfFiles(pdfInfo);
+      downloadFutures.add(downloadFuture);
+    }
+
+    await Future.wait(downloadFutures);
+    // all download is finish.
+    saveCurrentBook(widget.bookInfo.title);
+    navigateToMainNav("${bookNewFolder.path}cover_image");
   }
 
   navigateToMainNav(String path) {
     EasyLoading.dismiss();
     if (mounted) {
       setState(() {
+        existBook = true;
+        isButtonEnabled2 = true;
         isButtonEnabled = true;
       });
     }
@@ -336,32 +309,36 @@ class _DetailBookPageState extends State<DetailBookPage> {
     localStorage.setString('currentBook', bookName);
   }
 
-  Future<void> downloadPdFiles(
-    String url,
-    String filename,
-    String bookFolderDir,
-  ) async {
-    String host = "$mainHost$url";
-    var savePath = bookFolderDir;
-    // print(savePath);
-    var dio = Dio();
-    dio.interceptors.add(LogInterceptor());
+  // Function to download each pdf.
+  Future<void> downloadPdfFiles(PdfDownloadInfo pdfInfo) async {
     try {
-      // print("Downloading...");
-      var response = await dio.get(
-        host,
-        //Received data with List<int>
+      final Dio dio = Dio();
+      dio.interceptors.add(LogInterceptor());
+      final savePath = pdfInfo.savePath;
+      final response = await dio.get(
+        pdfInfo.pdfUrl,
         options: Options(
           responseType: ResponseType.bytes,
           followRedirects: false,
-          receiveTimeout: const Duration(seconds: 300),
         ),
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            setState(() {
+              if (pdfTitle != pdfInfo.title) {
+                pdfTitle = pdfInfo.title;
+              }
+              downloadProgress = received / total;
+            });
+          }
+        },
       );
-      var file = File(savePath);
-      var raf = file.openSync(mode: FileMode.write);
-      // response.data is List<int> type
-      raf.writeFromSync(response.data);
-      await raf.close();
+
+      final file = File(savePath);
+      await file.writeAsBytes(response.data);
+
+      setState(() {
+        downloadProgress = 1.0; // Set progress to 100% after download
+      });
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -509,12 +486,12 @@ class _DetailBookPageState extends State<DetailBookPage> {
             ),
             body: Container(
               color: Colors.white,
-              padding: const EdgeInsets.only(left: 20),
+              padding: const EdgeInsets.only(left: 20, right: 20),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
                     const SizedBox(
-                      height: 50,
+                      height: 30,
                     ),
                     Row(
                       children: [
@@ -651,14 +628,14 @@ class _DetailBookPageState extends State<DetailBookPage> {
                       ],
                     ),
                     const SizedBox(
-                      height: 40,
+                      height: 10,
                     ),
                     const Divider(
                       endIndent: 20,
                       color: Color(0xFF7b8ea3),
                     ),
                     const SizedBox(
-                      height: 15,
+                      height: 5,
                     ),
                     Row(
                       children: [
@@ -677,7 +654,7 @@ class _DetailBookPageState extends State<DetailBookPage> {
                       height: 20,
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(right: 20),
+                      padding: const EdgeInsets.only(right: 0),
                       child: Text(
                         'This book is brought to you by CK Children\'s Publishing. Your Access to Visual Learning and Integration',
                         style: GoogleFonts.prompt(
@@ -687,10 +664,45 @@ class _DetailBookPageState extends State<DetailBookPage> {
                       ),
                     ),
                     const SizedBox(
+                      height: 10,
+                    ),
+                    if (downloadEnabled) const Divider(),
+                    if (pdfTitle.isNotEmpty)
+                      SizedBox(
+                        child: Text(
+                          pdfTitle,
+                          style: GoogleFonts.prompt(
+                            textStyle: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.normal,
+                              fontSize: 14,
+                            ),
+                          ),
+                          overflow:
+                              TextOverflow.ellipsis, // Truncate text with ...
+                          maxLines: 1, // Display only one line
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                    if (downloadEnabled)
+                      LinearPercentIndicator(
+                        lineHeight: 20.0,
+                        percent: downloadProgress <= 1.0 ? downloadProgress : 0,
+                        center: Text(
+                            '${(downloadProgress * 100).toStringAsFixed(2)}%'),
+                        progressColor: Colors.blue,
+                      ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    if (downloadEnabled)
+                      const Text(
+                          'Please wait while the file is being downloaded.'),
+                    const SizedBox(
                       height: 25,
                     ),
                     Container(
-                      padding: const EdgeInsets.only(right: 20),
+                      padding: const EdgeInsets.only(right: 0),
                       child: Row(
                         children: [
                           ElevatedButton(
@@ -702,7 +714,16 @@ class _DetailBookPageState extends State<DetailBookPage> {
                                           isButtonEnabled = false;
                                         });
                                       }
-                                      _downloadPdf();
+                                      var imgPathLocal =
+                                          "${appDir.path}/${widget.bookInfo.title}/cover_image";
+                                      EasyLoading.show(status: "Preparing...");
+                                      saveCurrentBook(widget.bookInfo.title);
+                                      navigateToMainNav(imgPathLocal);
+                                      if (mounted) {
+                                        setState(() {
+                                          isButtonEnabled = true;
+                                        });
+                                      }
                                     } else {
                                       if (lowStorage) {
                                         EasyLoading.showInfo(
@@ -747,30 +768,49 @@ class _DetailBookPageState extends State<DetailBookPage> {
                                     }
                                   : null,
                               style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                  backgroundColor: isButtonEnabled2
-                                      ? Colors.red
-                                      : Colors.grey,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  padding: const EdgeInsets.only(
-                                    left: 15.0,
-                                    right: 15.0,
-                                    top: 10.0,
-                                    bottom: 10.0,
-                                  ),
-                                  alignment: Alignment.center),
-                              child: Text(
-                                "Clear Book",
-                                style: GoogleFonts.prompt(
-                                  textStyle: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 20),
+                                backgroundColor: Colors
+                                    .transparent, // Set the background color to transparent
+                                foregroundColor: Colors
+                                    .red, // Set the text color when using a transparent button
+                                elevation:
+                                    0, // No elevation for a transparent button
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  side: const BorderSide(
+                                      color: Colors
+                                          .red), // Add an outline using a red border
                                 ),
+                                padding: const EdgeInsets.only(
+                                  left: 15.0,
+                                  right: 15.0,
+                                  top: 10.0,
+                                  bottom: 10.0,
+                                ),
+                                alignment: Alignment.center,
                               ),
-                            ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.delete,
+                                    color:
+                                        Colors.red, // Set the icon color to red
+                                  ),
+                                  const SizedBox(
+                                      width:
+                                          8.0), // Add some spacing between icon and text
+                                  Text(
+                                    "Clear",
+                                    style: GoogleFonts.prompt(
+                                      textStyle: const TextStyle(
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
                         ],
                       ),
                     ),
@@ -784,4 +824,12 @@ class _DetailBookPageState extends State<DetailBookPage> {
       ),
     );
   }
+}
+
+class PdfDownloadInfo {
+  final String pdfUrl;
+  final String savePath;
+  final String title;
+
+  PdfDownloadInfo(this.pdfUrl, this.savePath, this.title);
 }
