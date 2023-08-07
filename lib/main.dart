@@ -19,8 +19,12 @@ Future main() async {
 }
 
 changeStatusBarColor() async {
-  await FlutterStatusbarcolor.setStatusBarColor(const Color(0xff500a34));
-  if (useWhiteForeground(const Color(0xff500a34))) {
+  await FlutterStatusbarcolor.setStatusBarColor(
+    const Color.fromRGBO(141, 31, 31, 1),
+  );
+  if (useWhiteForeground(
+    const Color.fromRGBO(141, 31, 31, 1),
+  )) {
     FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
   } else {
     FlutterStatusbarcolor.setStatusBarWhiteForeground(false);

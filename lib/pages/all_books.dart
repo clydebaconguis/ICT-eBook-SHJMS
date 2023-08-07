@@ -569,19 +569,33 @@ class _AllBooksState extends State<AllBooks> {
                                                   padding:
                                                       const EdgeInsets.only(
                                                           right: 2),
-                                                  child: Text(
-                                                    "Author: CK Children's Publishing",
-                                                    style: GoogleFonts.poppins(
-                                                      color: const Color(
-                                                          0xcd292735),
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 2,
-                                                    softWrap: true,
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        "Author:",
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          color: const Color(
+                                                              0xcd292735),
+                                                          fontSize: 13,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 2,
+                                                        softWrap: true,
+                                                      ),
+                                                      CircleAvatar(
+                                                        radius: 15,
+                                                        backgroundColor:
+                                                            Colors.transparent,
+                                                        child: Image.asset(
+                                                          "img/cklogo.png",
+                                                          height: 25,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
                                               ],

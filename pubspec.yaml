@@ -39,7 +39,6 @@ dependencies:
     google_fonts: ^4.0.4
     chewie: ^1.7.0
     flutter_statusbarcolor_ns: ^0.5.0
-    al_downloader: ^1.7.5
     percent_indicator: ^4.2.3
 
 dev_dependencies:

@@ -279,7 +279,10 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
         child: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xffcf167f), Color(0xff500a34)],
+              colors: [
+                Color.fromRGBO(173, 112, 112, 1),
+                Color.fromRGBO(141, 31, 31, 1),
+              ],
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
             ),
@@ -292,7 +295,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                   vertical: 24,
                 ).add(safeArea),
                 width: double.infinity,
-                color: Colors.white12,
+                color: Colors.white10,
                 child: buildHeader(isCollapsed),
               ),
               const SizedBox(height: 5),
@@ -352,7 +355,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                           children: [
                             const Icon(
                               Icons.copyright_outlined,
-                              color: Colors.white38,
+                              color: Colors.white,
                               size: 18.0,
                             ),
                             const SizedBox(
@@ -360,17 +363,17 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                             ),
                             Text(
                               'Copyright $currentYear',
-                              style: const TextStyle(
-                                  color: Colors.white38, fontSize: 12),
+                              style: GoogleFonts.poppins(
+                                  color: Colors.white, fontSize: 12),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(
                               width: 10,
                             ),
-                            const Text(
+                            Text(
                               'Powered by',
-                              style: TextStyle(
-                                  color: Colors.white38, fontSize: 12),
+                              style: GoogleFonts.poppins(
+                                  color: Colors.white, fontSize: 12),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(
@@ -827,7 +830,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
             height: size,
             child: Icon(
               icon,
-              color: const Color(0xE7E91E63),
+              color: Colors.white,
               size: 20,
             ),
           ),

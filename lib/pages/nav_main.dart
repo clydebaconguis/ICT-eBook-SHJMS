@@ -13,9 +13,7 @@ class MyNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
         create: (_) => NavigationProvider(),
-        child: const SafeArea(
-          child: NavMain(),
-        ),
+        child: const NavMain(),
       );
 }
 
@@ -57,7 +55,10 @@ class _NavMainState extends State<NavMain> {
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xff500a34), Color(0xffcf167f)],
+                colors: [
+                  Color.fromRGBO(141, 31, 31, 1),
+                  Color.fromRGBO(141, 31, 31, 1),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

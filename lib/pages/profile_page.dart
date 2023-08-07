@@ -68,7 +68,10 @@ class _ProfilePageState extends State<ProfilePage> {
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xff500a34), Color(0xffcf167f)],
+                colors: [
+                  Color.fromRGBO(141, 31, 31, 1),
+                  Color.fromRGBO(141, 31, 31, 1),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -127,7 +130,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 style: GoogleFonts.prompt(
                                   fontSize: 22.0,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xff500a34),
+                                  color: Colors.black,
                                 ),
                                 textAlign: TextAlign.center,
                               ),

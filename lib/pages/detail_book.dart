@@ -16,7 +16,6 @@ import 'package:ebooks/api/my_api.dart';
 import 'package:ebooks/models/get_books_info_02.dart';
 import 'package:disk_space_plus/disk_space_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:al_downloader/al_downloader.dart';
 
 class DetailBookPage extends StatefulWidget {
   final Books2 bookInfo;
@@ -46,6 +45,7 @@ class _DetailBookPageState extends State<DetailBookPage> {
   double downloadProgress = 0.0;
   String pdfTitle = '';
   bool downloadEnabled = false;
+  bool finished = false;
 
   checkIfBookExist() async {
     if (mounted) {
@@ -77,7 +77,6 @@ class _DetailBookPageState extends State<DetailBookPage> {
     _fetchParts();
     checkIfBookExist();
     super.initState();
-    ALDownloader.initialize();
   }
 
   getToken() async {
@@ -276,6 +275,11 @@ class _DetailBookPageState extends State<DetailBookPage> {
 
     await Future.wait(downloadFutures);
     // all download is finish.
+    if (mounted) {
+      setState(() {
+        finished = true;
+      });
+    }
     saveCurrentBook(widget.bookInfo.title);
     navigateToMainNav("${bookNewFolder.path}cover_image");
   }
@@ -350,16 +354,25 @@ class _DetailBookPageState extends State<DetailBookPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Download ${widget.bookInfo.title}?'),
-          content:
-              const Text('Don\'t interrupt while book is being downloaded.'),
+          title: Text(
+            'Download ${widget.bookInfo.title}?',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Don\'t interrupt while book is being downloaded.',
+            style: GoogleFonts.poppins(),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 // Close the dialog and do nothing (cancel logout)
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold, color: Colors.red),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -371,7 +384,10 @@ class _DetailBookPageState extends State<DetailBookPage> {
                 }
                 _downloadPdf();
               },
-              child: const Text('Download'),
+              child: Text(
+                'Download',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
@@ -385,16 +401,25 @@ class _DetailBookPageState extends State<DetailBookPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Remove ${widget.bookInfo.title}?'),
-          content: const Text(
-              'This will remove the book and its associated lessons from your phone.'),
+          title: Text(
+            'Remove ${widget.bookInfo.title}?',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'This will remove the book and its associated lessons from your phone.',
+            style: GoogleFonts.poppins(),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 // Close the dialog and do nothing (cancel logout)
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold, color: Colors.red),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -407,7 +432,10 @@ class _DetailBookPageState extends State<DetailBookPage> {
                 // _downloadPdf();
                 deleteSpecificFolder();
               },
-              child: const Text('Confirm'),
+              child: Text(
+                'Confirm',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
@@ -450,373 +478,403 @@ class _DetailBookPageState extends State<DetailBookPage> {
     return Scaffold(
       body: Container(
         color: Colors.white,
-        child: SafeArea(
-          child: Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              titleSpacing: 0,
-              flexibleSpace: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xff500a34), Color(0xffcf167f)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            titleSpacing: 0,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color.fromRGBO(141, 31, 31, 1),
+                    Color.fromRGBO(141, 31, 31, 1),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
-              // backgroundColor: const Color(0xff500a34),
-              title: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.bookInfo.title,
-                      style: GoogleFonts.prompt(
-                        textStyle: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 18),
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      softWrap: true,
-                    ),
-                  ),
-                ],
-              ),
             ),
-            body: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.only(left: 20, right: 20),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      height: 30,
+            // backgroundColor: const Color(0xff500a34),
+            title: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.bookInfo.title,
+                    style: GoogleFonts.prompt(
+                      textStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 18),
                     ),
-                    Row(
-                      children: [
-                        Material(
-                          elevation: 0.0,
-                          child: widget.bookInfo.picurl.isNotEmpty
-                              ? CachedNetworkImage(
-                                  imageUrl:
-                                      '$mainHost${widget.bookInfo.picurl}',
-                                  imageBuilder: (context, imageProvider) =>
-                                      Container(
-                                    height: 200,
-                                    width: 150,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: Colors.grey.withOpacity(0.3),
-                                            spreadRadius: 8,
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 3))
-                                      ],
-                                      image: DecorationImage(
-                                        image: imageProvider,
-                                        fit: BoxFit.fill,
-                                      ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    softWrap: true,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          body: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  Row(
+                    children: [
+                      Material(
+                        elevation: 0.0,
+                        child: widget.bookInfo.picurl.isNotEmpty
+                            ? CachedNetworkImage(
+                                imageUrl: '$mainHost${widget.bookInfo.picurl}',
+                                imageBuilder: (context, imageProvider) =>
+                                    Container(
+                                  height: 200,
+                                  width: 150,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.grey.withOpacity(0.3),
+                                          spreadRadius: 8,
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 3))
+                                    ],
+                                    image: DecorationImage(
+                                      image: imageProvider,
+                                      fit: BoxFit.fill,
                                     ),
                                   ),
-                                  placeholder: (context, url) =>
-                                      const CircularProgressIndicator(),
-                                  errorWidget: (context, url, error) =>
-                                      Container(
-                                    height: 200,
-                                    width: 150,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: Colors.grey.withOpacity(0.3),
-                                            spreadRadius: 8,
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 3))
-                                      ],
-                                      image: const DecorationImage(
-                                        image: AssetImage("img/CK_logo.png"),
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : Container(
+                                ),
+                                placeholder: (context, url) =>
+                                    const CircularProgressIndicator(),
+                                errorWidget: (context, url, error) => Container(
                                   height: 200,
                                   width: 150,
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.grey.withOpacity(0.3),
+                                          spreadRadius: 8,
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 3))
+                                    ],
                                     image: const DecorationImage(
                                       image: AssetImage("img/CK_logo.png"),
+                                      fit: BoxFit.contain,
                                     ),
                                   ),
                                 ),
-                        ),
-                        Container(
-                          width: screenWidth - 30 - 180 - 20,
-                          margin: const EdgeInsets.only(left: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(
-                                height: 10,
+                              )
+                            : Container(
+                                height: 200,
+                                width: 150,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  image: const DecorationImage(
+                                    image: AssetImage("img/CK_logo.png"),
+                                  ),
+                                ),
                               ),
+                      ),
+                      Container(
+                        width: screenWidth - 30 - 180 - 20,
+                        margin: const EdgeInsets.only(left: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              widget.bookInfo.title,
+                              style: GoogleFonts.prompt(
+                                textStyle: const TextStyle(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 22,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "Lessons: ",
+                                  style: GoogleFonts.prompt(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: Colors.black38,
+                                  ),
+                                ),
+                                lessonLength > 0
+                                    ? Text(
+                                        "$lessonLength items",
+                                        style: GoogleFonts.prompt(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: const Color(0xcd292735),
+                                        ),
+                                      )
+                                    : SizedBox(
+                                        width:
+                                            10.0, // Set the desired width of the CircularProgressIndicator
+                                        height:
+                                            10.0, // Set the desired height of the CircularProgressIndicator
+                                        child: CircularProgressIndicator(
+                                          strokeWidth:
+                                              3, // You can adjust the thickness of the progress indicator
+                                          valueColor:
+                                              const AlwaysStoppedAnimation<
+                                                  Color>(Colors.blue),
+                                          backgroundColor: Colors.grey[300],
+                                        ),
+                                      ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "Author:",
+                                  style: GoogleFonts.prompt(
+                                    color: Colors.black38,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                  softWrap: true,
+                                ),
+                                CircleAvatar(
+                                  radius: 15,
+                                  backgroundColor: Colors.transparent,
+                                  child: Image.asset(
+                                    "img/cklogo.png",
+                                    height: 25,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const Divider(),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        "DETAILS",
+                        style: GoogleFonts.prompt(
+                          textStyle: const TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 0),
+                    child: Text(
+                      'Presented by CK Children\'s Publishing, this book offers visual learning and integration for your benefit.'
+                          .toUpperCase(),
+                      style: GoogleFonts.prompt(
+                          color: Colors.black87, fontSize: 15),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  if (downloadEnabled) const Divider(),
+                  if (pdfTitle.isNotEmpty)
+                    SizedBox(
+                      child: Text(
+                        pdfTitle,
+                        style: GoogleFonts.prompt(
+                          textStyle: const TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 14,
+                          ),
+                        ),
+                        overflow:
+                            TextOverflow.ellipsis, // Truncate text with ...
+                        maxLines: 1, // Display only one line
+                        textAlign: TextAlign.start,
+                      ),
+                    ),
+                  if (downloadEnabled)
+                    LinearPercentIndicator(
+                      lineHeight: 20.0,
+                      percent: downloadProgress <= 1.0 ? downloadProgress : 0,
+                      center: Text(
+                          '${(downloadProgress * 100).toStringAsFixed(2)}%'),
+                      progressColor: Colors.blue,
+                    ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  if (downloadEnabled)
+                    finished
+                        ? const Text(
+                            'Finished.',
+                          )
+                        : const Text(
+                            'Please wait while the file is being downloaded.',
+                          ),
+                  const SizedBox(
+                    height: 25,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(right: 0),
+                    child: Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: isButtonEnabled
+                              ? () {
+                                  if (existBook) {
+                                    if (mounted) {
+                                      setState(() {
+                                        isButtonEnabled = false;
+                                      });
+                                    }
+                                    var imgPathLocal =
+                                        "${appDir.path}/${widget.bookInfo.title}/cover_image";
+                                    EasyLoading.show(status: "Preparing...");
+                                    saveCurrentBook(widget.bookInfo.title);
+                                    navigateToMainNav(imgPathLocal);
+                                    if (mounted) {
+                                      setState(() {
+                                        isButtonEnabled = true;
+                                      });
+                                    }
+                                  } else {
+                                    if (lowStorage) {
+                                      EasyLoading.showInfo(
+                                          'Not enough storage. Please clean your phone!');
+                                    } else {
+                                      showDonwloadConfirmationDialog(context);
+                                    }
+                                  }
+                                }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor:
+                                  isButtonEnabled ? Colors.green : Colors.grey,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.only(
+                                left: 15.0,
+                                right: 15.0,
+                                top: 10.0,
+                                bottom: 10.0,
+                              ),
+                              alignment: Alignment.center),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                existBook
+                                    ? Icons.remove_red_eye_rounded
+                                    : Icons.download,
+                                color:
+                                    Colors.white, // Set the icon color to red
+                              ),
+                              const SizedBox(
+                                  width:
+                                      8.0), // Add some spacing between icon and text
                               Text(
-                                widget.bookInfo.title,
+                                " ${existBook ? 'Explore' : 'Download'} ",
                                 style: GoogleFonts.prompt(
                                   textStyle: const TextStyle(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 22),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    "Lessons: ",
-                                    style: GoogleFonts.prompt(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                      color: Colors.black38,
-                                    ),
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 18,
                                   ),
-                                  lessonLength > 0
-                                      ? Text(
-                                          "$lessonLength items",
-                                          style: GoogleFonts.prompt(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                            color: Colors.black54,
-                                          ),
-                                        )
-                                      : SizedBox(
-                                          width:
-                                              10.0, // Set the desired width of the CircularProgressIndicator
-                                          height:
-                                              10.0, // Set the desired height of the CircularProgressIndicator
-                                          child: CircularProgressIndicator(
-                                            strokeWidth:
-                                                3, // You can adjust the thickness of the progress indicator
-                                            valueColor:
-                                                const AlwaysStoppedAnimation<
-                                                    Color>(Colors.blue),
-                                            backgroundColor: Colors.grey[300],
-                                          ),
-                                        ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                "CK Children's Publishing",
-                                style: GoogleFonts.prompt(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Colors.black45,
                                 ),
-                              ),
+                              )
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const Divider(
-                      endIndent: 20,
-                      color: Color(0xFF7b8ea3),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          "Details",
-                          style: GoogleFonts.prompt(
-                            textStyle: const TextStyle(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 22),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 0),
-                      child: Text(
-                        'This book is brought to you by CK Children\'s Publishing. Your Access to Visual Learning and Integration',
-                        style: GoogleFonts.prompt(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                            color: Colors.black54),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    if (downloadEnabled) const Divider(),
-                    if (pdfTitle.isNotEmpty)
-                      SizedBox(
-                        child: Text(
-                          pdfTitle,
-                          style: GoogleFonts.prompt(
-                            textStyle: const TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.normal,
-                              fontSize: 14,
-                            ),
-                          ),
-                          overflow:
-                              TextOverflow.ellipsis, // Truncate text with ...
-                          maxLines: 1, // Display only one line
-                          textAlign: TextAlign.start,
-                        ),
-                      ),
-                    if (downloadEnabled)
-                      LinearPercentIndicator(
-                        lineHeight: 20.0,
-                        percent: downloadProgress <= 1.0 ? downloadProgress : 0,
-                        center: Text(
-                            '${(downloadProgress * 100).toStringAsFixed(2)}%'),
-                        progressColor: Colors.blue,
-                      ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    if (downloadEnabled)
-                      const Text(
-                          'Please wait while the file is being downloaded.'),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.only(right: 0),
-                      child: Row(
-                        children: [
+                        const Spacer(),
+                        if (existBook)
                           ElevatedButton(
-                            onPressed: isButtonEnabled
+                            onPressed: isButtonEnabled2
                                 ? () {
-                                    if (existBook) {
-                                      if (mounted) {
-                                        setState(() {
-                                          isButtonEnabled = false;
-                                        });
-                                      }
-                                      var imgPathLocal =
-                                          "${appDir.path}/${widget.bookInfo.title}/cover_image";
-                                      EasyLoading.show(status: "Preparing...");
-                                      saveCurrentBook(widget.bookInfo.title);
-                                      navigateToMainNav(imgPathLocal);
-                                      if (mounted) {
-                                        setState(() {
-                                          isButtonEnabled = true;
-                                        });
-                                      }
-                                    } else {
-                                      if (lowStorage) {
-                                        EasyLoading.showInfo(
-                                            'Not enough storage. Please clean your phone!');
-                                      } else {
-                                        showDonwloadConfirmationDialog(context);
-                                      }
-                                    }
+                                    showClearConfirmationDialog(context);
                                   }
                                 : null,
                             style: ElevatedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                backgroundColor: isButtonEnabled
-                                    ? Colors.green
-                                    : Colors.grey,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.only(
-                                  left: 15.0,
-                                  right: 15.0,
-                                  top: 10.0,
-                                  bottom: 10.0,
-                                ),
-                                alignment: Alignment.center),
-                            child: Text(
-                              "View Book",
-                              style: GoogleFonts.prompt(
-                                textStyle: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 20),
+                              backgroundColor: Colors
+                                  .transparent, // Set the background color to transparent
+                              foregroundColor: Colors
+                                  .red, // Set the text color when using a transparent button
+                              elevation:
+                                  0, // No elevation for a transparent button
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: const BorderSide(
+                                    color: Colors
+                                        .red), // Add an outline using a red border
                               ),
+                              padding: const EdgeInsets.only(
+                                left: 15.0,
+                                right: 15.0,
+                                top: 10.0,
+                                bottom: 10.0,
+                              ),
+                              alignment: Alignment.center,
                             ),
-                          ),
-                          const Spacer(),
-                          if (existBook)
-                            ElevatedButton(
-                              onPressed: isButtonEnabled2
-                                  ? () {
-                                      showClearConfirmationDialog(context);
-                                    }
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors
-                                    .transparent, // Set the background color to transparent
-                                foregroundColor: Colors
-                                    .red, // Set the text color when using a transparent button
-                                elevation:
-                                    0, // No elevation for a transparent button
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  side: const BorderSide(
-                                      color: Colors
-                                          .red), // Add an outline using a red border
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.delete,
+                                  color:
+                                      Colors.red, // Set the icon color to red
                                 ),
-                                padding: const EdgeInsets.only(
-                                  left: 15.0,
-                                  right: 15.0,
-                                  top: 10.0,
-                                  bottom: 10.0,
-                                ),
-                                alignment: Alignment.center,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.delete,
-                                    color:
-                                        Colors.red, // Set the icon color to red
-                                  ),
-                                  const SizedBox(
-                                      width:
-                                          8.0), // Add some spacing between icon and text
-                                  Text(
-                                    "Clear",
-                                    style: GoogleFonts.prompt(
-                                      textStyle: const TextStyle(
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 20,
-                                      ),
+                                const SizedBox(
+                                    width:
+                                        8.0), // Add some spacing between icon and text
+                                Text(
+                                  "Clear",
+                                  style: GoogleFonts.prompt(
+                                    textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 18,
                                     ),
                                   ),
-                                ],
-                              ),
-                            )
-                        ],
-                      ),
+                                ),
+                              ],
+                            ),
+                          )
+                      ],
                     ),
-                    // const Divider(color: Color(0xFF7b8ea3)),
-                  ],
-                ),
+                  ),
+                  // const Divider(color: Color(0xFF7b8ea3)),
+                ],
               ),
             ),
           ),

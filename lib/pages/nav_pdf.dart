@@ -129,64 +129,65 @@ class _NavPdfState extends State<NavPdf> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => NavigationProvider2(),
-      child: SafeArea(
-        child: Scaffold(
-          key: _scaffoldKey2, // Assign the GlobalKey to the Scaffold
-          drawer: NavigationDrawerWidget2(updateData: updateData),
-          appBar: AppBar(
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xff500a34), Color(0xffcf167f)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+      child: Scaffold(
+        key: _scaffoldKey2, // Assign the GlobalKey to the Scaffold
+        drawer: NavigationDrawerWidget2(updateData: updateData),
+        appBar: AppBar(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromRGBO(141, 31, 31, 1),
+                  Color.fromRGBO(141, 31, 31, 1),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
-            title: title.isEmpty
-                ? Text(
-                    removeFileExtension(widget.books.title),
-                    style: GoogleFonts.prompt(fontWeight: FontWeight.bold),
-                  )
-                : Text(
-                    removeFileExtension(title),
-                    style: GoogleFonts.prompt(fontWeight: FontWeight.bold),
-                  ),
-            centerTitle: true,
-            actions: [
-              IconButton(
-                onPressed: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => const NavMain()),
-                  // );
-                  Navigator.pop(context);
-                  // Navigator.of(context).pushAndRemoveUntil(
-                  //     MaterialPageRoute(
-                  //       builder: (context) => const MyNav(),
-                  //     ),
-                  //     (Route<dynamic> route) => false);
-                },
-                icon: const Icon(Icons.keyboard_return),
-              ),
-            ],
           ),
-          body: (pdfPath.isNotEmpty && getFileExtension(pdfPath) == ".pdf")
-              ? SfPdfViewer.file(
-                  File(pdfPath),
-                  canShowPaginationDialog: false,
-                  canShowScrollHead: false,
+          title: title.isEmpty
+              ? Text(
+                  removeFileExtension(widget.books.title),
+                  style: GoogleFonts.prompt(fontWeight: FontWeight.bold),
                 )
-              : (pdfPath.isNotEmpty && getFileExtension(pdfPath) == ".mp4")
-                  ? Center(
-                      child: Chewie(
-                        controller: _chewieController,
-                      ),
-                    )
-                  : Image.file(
-                      File(widget.books.path),
-                    ),
+              : Text(
+                  removeFileExtension(title),
+                  style: GoogleFonts.prompt(fontWeight: FontWeight.bold),
+                ),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              onPressed: () {
+                // Navigator.pushReplacement(
+                //   context,
+                //   MaterialPageRoute(builder: (context) => const NavMain()),
+                // );
+                Navigator.pop(context);
+                // Navigator.of(context).pushAndRemoveUntil(
+                //     MaterialPageRoute(
+                //       builder: (context) => const MyNav(),
+                //     ),
+                //     (Route<dynamic> route) => false);
+              },
+              icon: const Icon(Icons.keyboard_return),
+            ),
+          ],
         ),
+        body: (pdfPath.isNotEmpty && getFileExtension(pdfPath) == ".pdf")
+            ? SfPdfViewer.file(
+                File(pdfPath),
+                canShowPaginationDialog: false,
+                canShowScrollHead: false,
+              )
+            : (pdfPath.isNotEmpty && getFileExtension(pdfPath) == ".mp4")
+                ? Center(
+                    child: Chewie(
+                      controller: _chewieController,
+                    ),
+                  )
+                : Image.file(
+                    File(widget.books.path),
+                  ),
       ),
     );
   }

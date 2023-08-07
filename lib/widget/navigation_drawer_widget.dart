@@ -58,15 +58,25 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to log out?'),
+          title: Text(
+            'Logout',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Are you sure you want to log out?',
+            style: GoogleFonts.poppins(),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 // Close the dialog and do nothing (cancel logout)
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold, color: Colors.red),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -79,7 +89,10 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                     ),
                     (Route<dynamic> route) => false);
               },
-              child: const Text('Logout'),
+              child: Text(
+                'Logout',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
@@ -101,7 +114,10 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
         child: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xffcf167f), Color(0xff500a34)],
+              colors: [
+                Color.fromRGBO(173, 112, 112, 1),
+                Color.fromRGBO(141, 31, 31, 1),
+              ],
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
             ),
@@ -144,7 +160,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                           children: [
                             const Icon(
                               Icons.copyright_outlined,
-                              color: Colors.white38,
+                              color: Colors.white,
                               size: 18.0,
                             ),
                             const SizedBox(
@@ -153,7 +169,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                             Text(
                               'Copyright 2023',
                               style: GoogleFonts.poppins(
-                                  color: Colors.white38, fontSize: 12),
+                                  color: Colors.white, fontSize: 12),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(
@@ -162,7 +178,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                             Text(
                               'Powered by',
                               style: GoogleFonts.poppins(
-                                  color: Colors.white38, fontSize: 12),
+                                  color: Colors.white, fontSize: 12),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(
@@ -357,7 +373,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
             height: size,
             child: Icon(
               icon,
-              color: const Color(0xE7E91E63),
+              color: Colors.white,
               size: 20,
             ),
           ),
@@ -392,14 +408,33 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                 image: AssetImage("img/liceo-logo.png"),
               ),
               const SizedBox(width: 16),
-              Text(
-                'ICT-eBook',
-                style: GoogleFonts.prompt(
-                  textStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 30),
-                ),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                    text: 'ICT',
+                    style: GoogleFonts.prompt(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: const Color.fromRGBO(141, 31, 31, 1),
+                    ),
+                    children: [
+                      TextSpan(
+                        text: ' e',
+                        style: GoogleFonts.prompt(
+                          color: const Color.fromRGBO(242, 167, 0, 1),
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'Book',
+                        style: GoogleFonts.prompt(
+                          color: const Color.fromRGBO(242, 167, 0, 1),
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ]),
               ),
             ],
           ),
