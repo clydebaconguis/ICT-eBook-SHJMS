@@ -115,7 +115,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color.fromRGBO(173, 112, 112, 1),
+                Color.fromRGBO(141, 31, 31, 1),
                 Color.fromRGBO(141, 31, 31, 1),
               ],
               begin: Alignment.topRight,
@@ -415,7 +415,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                     style: GoogleFonts.prompt(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
-                      color: const Color.fromRGBO(141, 31, 31, 1),
+                      color: Colors.white,
                     ),
                     children: [
                       TextSpan(

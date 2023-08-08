@@ -208,7 +208,7 @@ class _SignInState extends State<SignIn> {
             end: Alignment.topRight,
             colors: isButtonEnabled
                 ? [
-                    const Color.fromARGB(227, 192, 96, 96),
+                    const Color.fromRGBO(141, 31, 31, 1),
                     const Color.fromRGBO(141, 31, 31, 1),
                   ]
                 : [Colors.grey, Colors.grey],

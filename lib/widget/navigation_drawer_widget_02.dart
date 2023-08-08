@@ -280,7 +280,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color.fromRGBO(173, 112, 112, 1),
+                Color.fromRGBO(141, 31, 31, 1),
                 Color.fromRGBO(141, 31, 31, 1),
               ],
               begin: Alignment.topRight,

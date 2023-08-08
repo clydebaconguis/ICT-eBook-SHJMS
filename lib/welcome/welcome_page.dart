@@ -100,7 +100,7 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff292735),
+      backgroundColor: const Color.fromRGBO(141, 31, 31, 1),
       body: Column(
         children: [
           Container(
@@ -120,7 +120,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 decorator: DotsDecorator(
                   size: const Size.square(9.0),
                   activeSize: const Size(18.0, 9.0),
-                  activeColor: const Color(0xffcf167f),
+                  activeColor: const Color.fromRGBO(242, 167, 0, 1),
                   activeShape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5.0),
                   ),
@@ -133,7 +133,7 @@ class _WelcomePageState extends State<WelcomePage> {
           ),
           Container(
             height: 180,
-            color: const Color(0xff292735),
+            color: const Color.fromRGBO(141, 31, 31, 1),
             child: PageView.builder(
               onPageChanged: _onPageChanged,
               controller: PageController(viewportFraction: 1.0),
@@ -150,7 +150,7 @@ class _WelcomePageState extends State<WelcomePage> {
                       textStyle: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
-                          fontSize: 22),
+                          fontSize: 21),
                     ),
                   ),
                 );
@@ -177,7 +177,7 @@ class _WelcomePageState extends State<WelcomePage> {
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(50),
-                        color: const Color(0xffcf167f),
+                        color: const Color.fromRGBO(242, 167, 0, 1),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
