@@ -87,7 +87,7 @@ class _SignInState extends State<SignIn> {
         EasyLoading.showError('Failed to Login');
       }
     } catch (e) {
-      print('Error during login: $e');
+      // print('Error during login: $e');
       EasyLoading.showError('An error occurred during login');
     } finally {
       EasyLoading.dismiss();
@@ -105,7 +105,7 @@ class _SignInState extends State<SignIn> {
       for (var item in result) {
         final directory = Directory(item.path);
         directory.deleteSync(recursive: true);
-        print("Deleted directory: ${directory.path}");
+        // print("Deleted directory: ${directory.path}");
       }
     }
   }
@@ -165,7 +165,8 @@ class _SignInState extends State<SignIn> {
           Stack(
             children: [
               TextField(
-                controller: title == "Email" ? emailController : textController,
+                controller:
+                    title == "Username" ? emailController : textController,
                 obscureText: title == "Password" ? isVisible : false,
                 decoration: const InputDecoration(
                   border: InputBorder.none,
@@ -200,7 +201,7 @@ class _SignInState extends State<SignIn> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Email"),
+        _entryField("Username"),
         _entryField("Password", isPassword: true),
       ],
     );
@@ -305,7 +306,7 @@ class _SignInState extends State<SignIn> {
           child: Stack(
             children: <Widget>[
               Positioned(
-                top: -height * .15,
+                top: -height * .18,
                 right: -MediaQuery.of(context).size.width * .4,
                 child: const BezierContainer(),
               ),

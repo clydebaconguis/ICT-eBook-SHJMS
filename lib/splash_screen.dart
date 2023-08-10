@@ -45,10 +45,10 @@ class _SplashState extends State<Splash> {
           for (var item in result) {
             final directory = Directory(item.path);
             directory.deleteSync(recursive: true);
-            print("Deleted directory: ${directory.path}");
+            // print("Deleted directory: ${directory.path}");
           }
         } else {
-          print("No books found.");
+          // print("No books found.");
         }
         logout();
         if (mounted) {
