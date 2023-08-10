@@ -19,7 +19,7 @@ dependencies:
     shared_preferences: ^2.1.2
     dots_indicator: ^3.0.0
     dio: ^5.2.1+1
-    flutter_windowmanager: ^0.2.0
+    # flutter_windowmanager: ^0.2.0
     path_provider: ^2.0.15
     permission_handler: ^10.3.0
     syncfusion_flutter_pdf: ^21.2.10
@@ -83,12 +83,6 @@ flutter:
             - asset: fonts/Prompt-Regular.ttf
             - asset: fonts/Prompt-Black.ttf
             - asset: fonts/Prompt-Bold.ttf
-            - asset: fonts/Prompt-ExtraBold.ttf
-            - asset: fonts/Prompt-ExtraLight.ttf
-            - asset: fonts/Prompt-Light.ttf
-            - asset: fonts/Prompt-Medium.ttf
-            - asset: fonts/Prompt-SemiBold.ttf
-            - asset: fonts/Prompt-Thin.ttf    
         - family: Poppins
           fonts:
             - asset: fonts/Poppins-Regular.ttf

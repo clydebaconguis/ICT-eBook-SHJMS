@@ -6,7 +6,7 @@ import 'package:ebooks/provider/navigation_provider2.dart';
 import 'package:ebooks/signup_login/sign_in.dart';
 import 'package:ebooks/widget/navigation_drawer_widget_02.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
+// import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +32,7 @@ class _NavPdfState extends State<NavPdf> {
   @override
   void initState() {
     getUser();
-    restrictScreenshot();
+    // restrictScreenshot();
     _openDrawerAutomatically();
     _videoPlayerController = VideoPlayerController.file(File(''));
     _chewieController = ChewieController(
@@ -70,10 +70,11 @@ class _NavPdfState extends State<NavPdf> {
   }
 
   @override
-  void dispose() {
+  Future<void> dispose() async {
     _videoPlayerController.dispose();
     _chewieController.dispose();
     super.dispose();
+    // await FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
   }
 
   void _openDrawerAutomatically() {
@@ -82,11 +83,11 @@ class _NavPdfState extends State<NavPdf> {
     });
   }
 
-  Future<void> restrictScreenshot() async {
-    await FlutterWindowManager.addFlags(
-      FlutterWindowManager.FLAG_SECURE,
-    );
-  }
+  // Future<void> restrictScreenshot() async {
+  //   await FlutterWindowManager.addFlags(
+  //     FlutterWindowManager.FLAG_SECURE,
+  //   );
+  // }
 
   String title = '';
   String pdfPath = '';
