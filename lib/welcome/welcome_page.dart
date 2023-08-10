@@ -11,11 +11,6 @@ class Welcome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      // theme: ThemeData(
-      //   textTheme: GoogleFonts.poppinsTextTheme(
-      //     Theme.of(context).textTheme,
-      //   ),
-      // ),
       home: WelcomePage(),
       debugShowCheckedModeBanner: false,
       title: 'Ebook',

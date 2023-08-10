@@ -525,7 +525,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
               height: 10,
             ),
             Text(
-              grade,
+              grade.isNotEmpty ? grade : '',
               style: GoogleFonts.prompt(
                 textStyle: const TextStyle(
                   color: Colors.greenAccent,

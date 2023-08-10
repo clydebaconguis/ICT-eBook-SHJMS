@@ -105,17 +105,21 @@ class _AllBooksState extends State<AllBooks> {
       _connectivityResult = connectivityResult;
       if (_connectivityResult.toString() == "ConnectivityResult.mobile" ||
           _connectivityResult.toString() == "ConnectivityResult.wifi") {
-        setState(() {
-          reloaded = true;
-          activeConnection = true;
-          getBooksOnline();
-        });
+        if (mounted) {
+          setState(() {
+            reloaded = true;
+            activeConnection = true;
+            getBooksOnline();
+          });
+        }
       } else {
-        setState(() {
-          reloaded = true;
-          activeConnection = false;
-          getDownloadedBooks();
-        });
+        if (mounted) {
+          setState(() {
+            reloaded = true;
+            activeConnection = false;
+            getDownloadedBooks();
+          });
+        }
       }
       displayScreeMsg();
     });
@@ -180,25 +184,29 @@ class _AllBooksState extends State<AllBooks> {
   getBooksOnline() async {
     files.clear();
     books.clear();
-    await CallApi().getPublicData("viewbook?id=${user.id}").then((response) {
-      setState(() {
-        Iterable list = json.decode(response.body);
-        // print(list);
-        Iterable firstArray = [];
-        List<dynamic> bb = [];
-        for (var element in list) {
-          if (element.isNotEmpty) {
-            for (var item in element) {
-              bb.add(item);
-              // print(item);
+    try {
+      await CallApi().getPublicData("viewbook?id=${user.id}").then((response) {
+        setState(() {
+          Iterable list = json.decode(response.body);
+          // print(list);
+          Iterable firstArray = [];
+          List<dynamic> bb = [];
+          for (var element in list) {
+            if (element.isNotEmpty) {
+              for (var item in element) {
+                bb.add(item);
+                // print(item);
+              }
             }
           }
-        }
-        firstArray = bb;
+          firstArray = bb;
 
-        books = firstArray.map((model) => Books2.fromJson(model)).toList();
+          books = firstArray.map((model) => Books2.fromJson(model)).toList();
+        });
       });
-    });
+    } catch (e) {
+      print('failed to get books');
+    }
   }
 
   String splitPath(url) {

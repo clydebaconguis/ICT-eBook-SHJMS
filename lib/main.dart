@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:ebooks/app_util.dart';
 import 'package:ebooks/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +10,6 @@ Future main() async {
     DeviceOrientation.portraitDown,
   ]);
   changeStatusBarColor();
-  deleteExpiredBooks();
 
   runApp(const Splash());
 }
@@ -31,18 +27,19 @@ changeStatusBarColor() async {
   }
 }
 
-deleteExpiredBooks() async {
-  var result = await AppUtil().readBooks();
-  result.forEach((item) {
-    final directory = Directory(item.path);
-    final now = DateTime.now();
-    final lastModified = File(directory.path).statSync().modified;
-    final difference = now.difference(lastModified);
-    if (difference.inDays >= 365) {
-      directory.deleteSync(recursive: true);
-    }
-  });
-}
+// deleteExpiredBooks() async {
+//   var result = await AppUtil().readBooks();
+//   result.forEach((item) {
+//     final directory = Directory(item.path);
+//     final now = DateTime.now();
+//     print(now);
+//     final lastModified = File(directory.path).statSync().modified;
+//     final difference = now.difference(lastModified);
+//     if (difference.inDays >= 365) {
+//       directory.deleteSync(recursive: true);
+//     }
+//   });
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

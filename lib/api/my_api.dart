@@ -19,10 +19,6 @@ class CallApi {
     return _domain;
   }
 
-  // getImage() {
-  //   return _imgUrl;
-  // }
-
   postData(data, apiUrl) async {
     // var fullUrl = _ckIpv4 + apiUrl;
     // return await http.post(Uri.parse(fullUrl),

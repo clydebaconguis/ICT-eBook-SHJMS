@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:ebooks/api/my_api.dart';
+import 'package:ebooks/app_util.dart';
 import 'package:ebooks/pages/nav_main.dart';
 import 'package:ebooks/widget/bezier_container.dart';
 import 'package:flutter/material.dart';
@@ -59,22 +61,53 @@ class _SignInState extends State<SignIn> {
 
       if (body['success']) {
         SharedPreferences localStorage = await SharedPreferences.getInstance();
-        localStorage.setString('token', body['user']['name']);
-        localStorage.setString('grade', body['grade']);
-        localStorage.setString('user', json.encode(body['user']));
-        _navigateToBooks();
+        var exp = body['user']['expiry'];
+        // var exp = '2023-09-09';
+        if (exp != null) {
+          final now = DateTime.now();
+          final expDate = DateTime.parse(exp);
+          if (now.isAfter(expDate) || now.isAtSameMomentAs(expDate)) {
+            EasyLoading.showInfo('Subscription Expired!');
+            deleteExpiredBooks();
+          } else {
+            localStorage.setString('token', body['user']['name']);
+            localStorage.setString('grade', body['grade']);
+            localStorage.setString('user', json.encode(body['user']));
+            localStorage.setString('expiry', body['user']['expiry']);
+            _navigateToBooks();
+          }
+        } else {
+          localStorage.setString('token', body['user']['name']);
+          localStorage.setString('grade', body['grade']);
+          localStorage.setString('user', json.encode(body['user']));
+          // localStorage.setString('expiry', body['user']['expiry']);
+          _navigateToBooks();
+        }
       } else {
         EasyLoading.showError('Failed to Login');
       }
     } catch (e) {
-      // print('Error during login: $e');
+      print('Error during login: $e');
       EasyLoading.showError('An error occurred during login');
     } finally {
       EasyLoading.dismiss();
     }
-    setState(() {
-      isButtonEnabled = true;
-    });
+    if (mounted) {
+      setState(() {
+        isButtonEnabled = true;
+      });
+    }
+  }
+
+  deleteExpiredBooks() async {
+    List<FileSystemEntity> result = await AppUtil().readBooks();
+    if (result.isNotEmpty) {
+      for (var item in result) {
+        final directory = Directory(item.path);
+        directory.deleteSync(recursive: true);
+        print("Deleted directory: ${directory.path}");
+      }
+    }
   }
 
   Widget _title() {
