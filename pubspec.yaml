@@ -1,6 +1,6 @@
 name: ebooks
 description: A new Flutter project.
-version: 1.0.1+7
+version: 1.0.1+8
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 environment:
     sdk: ">=3.0.5 <4.0.0"
@@ -40,6 +40,7 @@ dependencies:
     chewie: ^1.7.0
     flutter_statusbarcolor_ns: ^0.5.0
     percent_indicator: ^4.2.3
+    concentric_transition: ^1.0.3
 
 dev_dependencies:
     flutter_test:
@@ -51,6 +52,7 @@ flutter_icons:
     image_path: "assets/icon/icon.png"
     android: true
     ios: true
+    background_color: "#FFFFFF"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

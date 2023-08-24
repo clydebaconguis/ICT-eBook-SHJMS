@@ -270,8 +270,6 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
 
     final provider = Provider.of<NavigationProvider2>(context);
     var isCollapsed = provider.isCollapsed;
-    // files.sort((a, b) => a.title.compareTo(b.title));
-    // Sort the files list using the custom comparator function
     files.sort(customComparator);
     return SizedBox(
       width: isCollapsed ? MediaQuery.of(context).size.width * 0.2 : null,
@@ -538,8 +536,6 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
     required List<PdfTile> innerChild,
     required IconData icon,
     required int index,
-    // required List<PdfTile> items,
-    // VoidCallback? onClicked,
   }) {
     const color = Colors.white;
     const blue = Color.fromRGBO(70, 191, 247, 1);

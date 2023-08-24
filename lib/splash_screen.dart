@@ -7,6 +7,8 @@ import 'package:ebooks/welcome/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -69,13 +71,44 @@ class _SplashState extends State<Splash> {
 
   @override
   void initState() {
+    configLoading();
     checkExpiration();
+    changeStatusBarColor(Colors.white);
     super.initState();
+  }
+
+  changeStatusBarColor(Color color) async {
+    await FlutterStatusbarcolor.setStatusBarColor(color);
+    if (useWhiteForeground(color)) {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+    } else {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    }
+  }
+
+  void configLoading() {
+    EasyLoading.instance
+      ..displayDuration = const Duration(milliseconds: 2000)
+      ..indicatorType = EasyLoadingIndicatorType.fadingCube
+      ..loadingStyle = EasyLoadingStyle.dark
+      ..indicatorSize = 45.0
+      ..radius = 10.0
+      ..progressColor = Colors.green
+      ..backgroundColor = Colors.transparent
+      ..indicatorColor = Colors.green
+      ..textColor = Colors.green
+      ..maskColor = Colors.white
+      ..userInteractions = true
+      ..dismissOnTap = false;
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        textTheme: GoogleFonts
+            .poppinsTextTheme(), // Apply Poppins font to the entire app
+      ),
       debugShowCheckedModeBanner: false,
       title: '',
       home: AnimatedSplashScreen(

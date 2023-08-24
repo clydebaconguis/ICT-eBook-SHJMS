@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../models/pdf_tile.dart';
+import 'package:ebooks/models/pdf_tile.dart';
 
 class NavigationProvider2 extends ChangeNotifier {
   String _selectedPdf = '';

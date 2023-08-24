@@ -1,43 +1,44 @@
-import 'package:dots_indicator/dots_indicator.dart';
+import 'package:concentric_transition/concentric_transition.dart';
 import 'package:ebooks/auth/auth_page.dart';
 import 'package:ebooks/pages/nav_main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-class Welcome extends StatelessWidget {
-  const Welcome({super.key});
+final pages = [
+  const PageData(
+    icon: Icons.local_library_rounded,
+    title: "Search for your ICT eBook",
+    bgColor: Color(0xff3b1791),
+    textColor: Colors.white,
+  ),
+  const PageData(
+    icon: Icons.download_for_offline_rounded,
+    title: "Donwload Offline",
+    bgColor: Color(0xfffab800),
+    textColor: Color(0xff3b1790),
+  ),
+  const PageData(
+    icon: Icons.phone_android_rounded,
+    title: "Access on all platform ",
+    bgColor: Color(0xffffffff),
+    textColor: Color(0xff3b1790),
+  ),
+];
+
+class Welcome extends StatefulWidget {
+  const Welcome({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: WelcomePage(),
-      debugShowCheckedModeBanner: false,
-      title: 'Ebook',
-    );
-  }
+  State<Welcome> createState() => _WelcomeState();
 }
 
-class WelcomePage extends StatefulWidget {
-  const WelcomePage({Key? key}) : super(key: key);
-
-  @override
-  State<WelcomePage> createState() => _WelcomePageState();
-}
-
-class _WelcomePageState extends State<WelcomePage> {
-  var articles = <String>[
-    "Welcome to ICT-eBook. We’re excited to have you on board.",
-    "Powered by CK Your Access to Visual Learning and Integration",
-    "Access Books Anytime, Anywhere.",
-  ];
-  final _totalDots = 3;
-  double _currentPosition = 0.0;
+class _WelcomeState extends State<Welcome> {
   bool isLoggedIn = false;
-
   @override
   void initState() {
     _checkLoginStatus();
+    changeStatusBarColor(const Color(0xff3b1791));
     super.initState();
   }
 
@@ -60,142 +61,111 @@ class _WelcomePageState extends State<WelcomePage> {
         (Route<dynamic> route) => false);
   }
 
-  double _validPosition(double position) {
-    if (position >= _totalDots) return 0;
-    if (position < 0) return _totalDots - 1.0;
-    return position;
+  checkAuth() {
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => const AuthPage(),
+        ),
+        (Route<dynamic> route) => false);
   }
 
-  void _updatePosition(double position) {
-    setState(() => _currentPosition = _validPosition(position));
-  }
-
-  Widget _buildRow(List<Widget> widgets) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: widgets,
-      ),
-    );
-  }
-
-  String getCurrentPositionPretty() {
-    return (_currentPosition + 1.0).toStringAsPrecision(2);
-  }
-
-  _onPageChanged(int index) {
-    setState(() {
-      _currentPosition = _currentPosition.ceilToDouble();
-      // _updatePosition(max(--_currentPosition, 0));
-      _updatePosition(index.toDouble());
-    });
+  changeStatusBarColor(Color color) async {
+    await FlutterStatusbarcolor.setStatusBarColor(color);
+    if (useWhiteForeground(color)) {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+    } else {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(141, 31, 31, 1),
-      body: Column(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height / 2,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage("img/background-welcome.png"),
-                  fit: BoxFit.contain),
-            ),
+      body: ConcentricPageView(
+        onFinish: () => checkAuth(),
+        colors: pages.map((p) => p.bgColor).toList(),
+        onChange: (page) => changeStatusBarColor(pages[page].bgColor),
+        radius: screenWidth * 0.1,
+        nextButtonBuilder: (context) => Padding(
+          padding: const EdgeInsets.only(left: 3), // visual center
+          child: Icon(
+            Icons.navigate_next,
+            size: screenWidth * 0.08,
           ),
-          _buildRow(
-            [
-              DotsIndicator(
-                dotsCount: _totalDots,
-                position: _currentPosition.toInt(),
-                axis: Axis.horizontal,
-                decorator: DotsDecorator(
-                  size: const Size.square(9.0),
-                  activeSize: const Size(18.0, 9.0),
-                  activeColor: const Color.fromRGBO(242, 167, 0, 1),
-                  activeShape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                ),
-                onTap: (pos) {
-                  setState(() => _currentPosition = pos.ceilToDouble());
-                },
-              )
-            ],
-          ),
-          Container(
-            height: 180,
-            color: const Color.fromRGBO(141, 31, 31, 1),
-            child: PageView.builder(
-              onPageChanged: _onPageChanged,
-              controller: PageController(viewportFraction: 1.0),
-              itemCount: articles.isNotEmpty ? articles.length : 0,
-              itemBuilder: (_, i) {
-                return Container(
-                  height: 180,
-                  padding: const EdgeInsets.only(top: 50, left: 50, right: 50),
-                  width: MediaQuery.of(context).size.width,
-                  margin: const EdgeInsets.only(right: 10),
-                  child: Text(
-                    articles[i].isEmpty ? "Nothing " : articles[i],
-                    style: GoogleFonts.prompt(
-                      textStyle: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 21),
-                    ),
-                  ),
-                );
-              },
+        ),
+        // enable itemcount to disable infinite scroll
+        // itemCount: pages.length,
+        // opacityFactor: 2.0,
+        scaleFactor: 2,
+        // verticalPosition: 0.7,
+        // direction: Axis.vertical,
+        itemCount: pages.length,
+        // physics: NeverScrollableScrollPhysics(),
+        itemBuilder: (index) {
+          final page = pages[index % pages.length];
+          return SafeArea(
+            child: _Page(
+              page: page,
             ),
-          ),
-          Expanded(
-            child: Stack(
-              children: [
-                Positioned(
-                  height: 60,
-                  bottom: 80,
-                  left: (MediaQuery.of(context).size.width - 200) / 2,
-                  right: (MediaQuery.of(context).size.width - 200) / 2,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                            builder: (context) => const AuthPage(),
-                          ),
-                          (Route<dynamic> route) => false);
-                    },
-                    child: Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        color: const Color.fromRGBO(242, 167, 0, 1),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                            'Get Started',
-                            style: GoogleFonts.prompt(
-                              textStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 20),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
+          );
+        },
       ),
+    );
+  }
+}
+
+class PageData {
+  final String? title;
+  final IconData? icon;
+  final Color bgColor;
+  final Color textColor;
+
+  const PageData({
+    this.title,
+    this.icon,
+    this.bgColor = Colors.white,
+    this.textColor = Colors.black,
+  });
+}
+
+class _Page extends StatelessWidget {
+  final PageData page;
+
+  const _Page({
+    Key? key,
+    required this.page,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16.0),
+          margin: const EdgeInsets.all(16.0),
+          decoration:
+              BoxDecoration(shape: BoxShape.circle, color: page.textColor),
+          child: Icon(
+            page.icon,
+            size: screenHeight * 0.1,
+            color: page.bgColor,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: Text(
+            page.title ?? "",
+            style: TextStyle(
+                color: page.textColor,
+                fontSize: screenHeight * 0.035,
+                fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
     );
   }
 }

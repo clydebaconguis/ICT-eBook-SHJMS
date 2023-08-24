@@ -2,6 +2,7 @@ import 'package:ebooks/pages/nav_main.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_app_backend/pages/article_page.dart';
 import 'package:ebooks/signup_login/sign_in.dart';
+import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthPage extends StatefulWidget {
@@ -12,22 +13,41 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
-  bool _isLoggedIn = false;
+  bool isLoggedIn = false;
 
   @override
   void initState() {
     _checkLoginStatus();
+    changeStatusBarColor(const Color.fromRGBO(141, 31, 31, 1));
     super.initState();
+  }
+
+  changeStatusBarColor(Color color) async {
+    await FlutterStatusbarcolor.setStatusBarColor(color);
+    if (useWhiteForeground(color)) {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+    } else {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    }
   }
 
   _checkLoginStatus() async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
-    var token = localStorage.getString('token');
-    if (token != null) {
+    var token = localStorage.getString('token') ?? '';
+    if (token.isNotEmpty) {
       setState(() {
-        _isLoggedIn = true;
+        isLoggedIn = true;
       });
     }
+    isLoggedIn ? navigateToMainNav() : {};
+  }
+
+  navigateToMainNav() {
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => const MyNav(),
+        ),
+        (Route<dynamic> route) => false);
   }
 
   @override
@@ -35,7 +55,7 @@ class _AuthPageState extends State<AuthPage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: (_isLoggedIn ? const MyNav() : const SignIn()),
+        body: (isLoggedIn ? const MyNav() : const SignIn()),
       ),
     );
   }

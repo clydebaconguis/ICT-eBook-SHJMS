@@ -3,6 +3,7 @@ import 'package:ebooks/provider/navigation_provider.dart';
 import 'package:ebooks/signup_login/sign_in.dart';
 import 'package:ebooks/widget/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,7 +29,17 @@ class _NavMainState extends State<NavMain> {
   @override
   void initState() {
     getUser();
+    // changeStatusBarColor(const Color.fromRGBO(141, 31, 31, 1));
     super.initState();
+  }
+
+  changeStatusBarColor(Color color) async {
+    await FlutterStatusbarcolor.setStatusBarColor(color);
+    if (useWhiteForeground(color)) {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+    } else {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    }
   }
 
   getUser() async {

@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:ebooks/api/my_api.dart';
 import 'package:ebooks/app_util.dart';
 import 'package:ebooks/pages/nav_main.dart';
-import 'package:ebooks/widget/bezier_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({Key? key}) : super(key: key);
@@ -16,99 +17,53 @@ class SignIn extends StatefulWidget {
   State<SignIn> createState() => _SignInState();
 }
 
-const snackBar2 = SnackBar(
-  content: Text('Fill all fields!'),
-);
-
 class _SignInState extends State<SignIn> {
-  var loggedIn = false;
-  bool isButtonEnabled = true;
-  bool isVisible = false;
-  // late bool _isLoading = false;
-  TextEditingController textController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
+  changeStatusBarColor(Color color) async {
+    await FlutterStatusbarcolor.setStatusBarColor(color);
+    if (useWhiteForeground(color)) {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+    } else {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    }
+  }
 
   @override
   void initState() {
+    changeStatusBarColor(Colors.white);
     super.initState();
   }
 
-  _navigateToBooks() {
-    if (mounted) {
-      EasyLoading.showSuccess('Successfully loggedin!');
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const MyNav(),
-          ),
-          (Route<dynamic> route) => false);
-    }
+  @override
+  Widget build(BuildContext context) {
+    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
+
+    return Scaffold(
+        body: Center(
+            child: isSmallScreen
+                ? const Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _Logo(),
+                      _FormContent(),
+                    ],
+                  )
+                : Container(
+                    padding: const EdgeInsets.all(32.0),
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: const Row(
+                      children: [
+                        Expanded(child: _Logo()),
+                        Expanded(
+                          child: Center(child: _FormContent()),
+                        ),
+                      ],
+                    ),
+                  )));
   }
+}
 
-  _login() async {
-    EasyLoading.show(status: 'loading...');
-    var data = {
-      'email': emailController.text,
-      'password': textController.text,
-    };
-
-    try {
-      var res = await CallApi().login(data, 'studentlogin');
-      var body = {};
-      if (res != null) {
-        body = json.decode(res.body);
-        // print(body);
-      }
-
-      if (body['success']) {
-        SharedPreferences localStorage = await SharedPreferences.getInstance();
-        var exp = body['user']['expiry'];
-        // var exp = '2023-09-09';
-        if (exp != null) {
-          final now = DateTime.now();
-          final expDate = DateTime.parse(exp);
-          if (now.isAfter(expDate) || now.isAtSameMomentAs(expDate)) {
-            EasyLoading.showInfo('Subscription Expired!');
-            deleteExpiredBooks();
-          } else {
-            localStorage.setString('token', body['user']['name']);
-            localStorage.setString('grade', body['grade']);
-            localStorage.setString('user', json.encode(body['user']));
-            localStorage.setString('expiry', body['user']['expiry']);
-            _navigateToBooks();
-          }
-        } else {
-          localStorage.setString('token', body['user']['name']);
-          localStorage.setString('grade', body['grade']);
-          localStorage.setString('user', json.encode(body['user']));
-          // localStorage.setString('expiry', body['user']['expiry']);
-          _navigateToBooks();
-        }
-      } else {
-        EasyLoading.showError('Failed to Login');
-      }
-    } catch (e) {
-      // print('Error during login: $e');
-      EasyLoading.showError('An error occurred during login');
-    } finally {
-      EasyLoading.dismiss();
-    }
-    if (mounted) {
-      setState(() {
-        isButtonEnabled = true;
-      });
-    }
-  }
-
-  deleteExpiredBooks() async {
-    List<FileSystemEntity> result = await AppUtil().readBooks();
-    if (result.isNotEmpty) {
-      for (var item in result) {
-        final directory = Directory(item.path);
-        directory.deleteSync(recursive: true);
-        // print("Deleted directory: ${directory.path}");
-      }
-    }
-  }
+class _Logo extends StatelessWidget {
+  const _Logo({Key? key}) : super(key: key);
 
   Widget _title() {
     return RichText(
@@ -141,308 +96,277 @@ class _SignInState extends State<SignIn> {
     );
   }
 
-  Widget _entryField(String title, {bool isPassword = false}) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          // TextField(
-          //   controller: title == "Email" ? emailController : textController,
-          //   obscureText: isPassword,
-          //   decoration: const InputDecoration(
-          //       border: InputBorder.none,
-          //       fillColor: Color(0xfff3f3f4),
-          //       filled: true),
-          // ),
-          Stack(
-            children: [
-              TextField(
-                controller:
-                    title == "Username" ? emailController : textController,
-                obscureText: title == "Password" ? isVisible : false,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true,
-                ),
-              ),
-              if (title == "Password")
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        isVisible = !isVisible;
-                      });
-                    },
-                    icon: Icon(
-                      isVisible ? Icons.visibility : Icons.visibility_off,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-            ],
-          )
-        ],
-      ),
-    );
-  }
+  @override
+  Widget build(BuildContext context) {
+    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
 
-  Widget _emailPasswordWidget() {
     return Column(
-      children: <Widget>[
-        _entryField("Username"),
-        _entryField("Password", isPassword: true),
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // FlutterLogo(size: isSmallScreen ? 100 : 200),
+        CircleAvatar(
+          radius: isSmallScreen ? 60 : 100,
+          backgroundColor: Colors.transparent,
+          child: Image.asset("img/liceo-logo.png"),
+        ),
+        Padding(
+            padding: isSmallScreen
+                ? const EdgeInsets.all(10.0)
+                : const EdgeInsets.all(0.0),
+            child: _title()
+            // Text(
+            //   "Welcome to Flutter!",
+            //   textAlign: TextAlign.center,
+            //   style: isSmallScreen
+            //       ? Theme.of(context).textTheme.headline5
+            //       : Theme.of(context)
+            //           .textTheme
+            //           .headline4
+            //           ?.copyWith(color: Colors.black),
+            // ),
+
+            )
       ],
     );
   }
+}
 
-  Widget _submitButton() {
-    return GestureDetector(
-      onTap: isButtonEnabled
-          ? () {
-              if (textController.text.isEmpty || emailController.text.isEmpty) {
-                EasyLoading.showToast(
-                  'Fill all fields!',
-                  toastPosition: EasyLoadingToastPosition.bottom,
-                );
-              } else {
-                setState(() {
-                  isButtonEnabled = false;
-                });
-                _login();
-              }
-            }
-          : null,
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.symmetric(vertical: 15),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(5)),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-                color: Colors.grey.shade200,
-                offset: const Offset(2, 4),
-                blurRadius: 5,
-                spreadRadius: 2)
-          ],
-          gradient: LinearGradient(
-            begin: Alignment.bottomLeft,
-            end: Alignment.topRight,
-            colors: isButtonEnabled
-                ? [
-                    const Color.fromRGBO(141, 31, 31, 1),
-                    const Color.fromRGBO(141, 31, 31, 1),
-                  ]
-                : [Colors.grey, Colors.grey],
-          ),
-        ),
-        child: const Text(
-          'Login',
-          style: TextStyle(fontSize: 20, color: Colors.white),
-        ),
-      ),
-    );
+class _FormContent extends StatefulWidget {
+  const _FormContent({Key? key}) : super(key: key);
+
+  @override
+  State<_FormContent> createState() => __FormContentState();
+}
+
+class __FormContentState extends State<_FormContent> {
+  bool _isPasswordVisible = false;
+  bool isButtonEnabled = true;
+  var body = {};
+  var expiration = '';
+  // bool _rememberMe = false;
+  // final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  deleteExpiredBooks() async {
+    List<FileSystemEntity> result = await AppUtil().readBooks();
+    if (result.isNotEmpty) {
+      for (var item in result) {
+        final directory = Directory(item.path);
+        directory.deleteSync(recursive: true);
+        // print("Deleted directory: ${directory.path}");
+      }
+    }
   }
 
-  // Widget _createAccountLabel() {
-  //   return InkWell(
-  //     onTap: () {
-  //       // Navigator.push(
-  //       //     context, MaterialPageRoute(builder: (context) => SignUpPage()));
-  //     },
-  //     child: Container(
-  //       margin: const EdgeInsets.symmetric(vertical: 20),
-  //       padding: const EdgeInsets.all(15),
-  //       alignment: Alignment.bottomCenter,
-  //       child: const Row(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: <Widget>[
-  //           Text(
-  //             'Don\'t have an account ?',
-  //             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-  //           ),
-  //           SizedBox(
-  //             width: 10,
-  //           ),
-  //           Text(
-  //             'Register',
-  //             style: TextStyle(
-  //                 color: Color.fromARGB(179, 207, 46, 137),
-  //                 fontSize: 13,
-  //                 fontWeight: FontWeight.w600),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
+  _navigateToBooks() {
+    if (mounted) {
+      EasyLoading.showSuccess('Successfully loggedin!');
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => const MyNav(),
+          ),
+          (Route<dynamic> route) => false);
+    }
+  }
+
+  _login() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    EasyLoading.show(status: 'loading...');
+    var data = {
+      'email': emailController.text.toString(),
+      'password': passwordController.text.toString(),
+    };
+    // print('Email: ${emailController.text}');
+    // print('Password: ${passwordController.text}');
+
+    try {
+      var res = await CallApi().login(data, 'studentlogin');
+      if (res != null) {
+        if (mounted) {
+          setState(() {
+            body = json.decode(res.body);
+            expiration = body['expiry'] ?? '';
+            print(expiration);
+            print(body);
+          });
+        }
+      }
+      if (body['message'] == 'true') {
+        if (expiration.isNotEmpty) {
+          final now = DateTime.now();
+          final expDate = DateTime.parse(expiration);
+          if (now.isAfter(expDate) || now.isAtSameMomentAs(expDate)) {
+            EasyLoading.showInfo('Subscription Expired!');
+            deleteExpiredBooks();
+          } else {
+            localStorage.setString('token', body['user']['name']);
+            localStorage.setString('grade', body['grade']);
+            localStorage.setString('user', json.encode(body['user']));
+            localStorage.setString('expiry', expiration);
+            _navigateToBooks();
+          }
+        } else {
+          localStorage.setString('token', body['user']['name']);
+          localStorage.setString('grade', body['grade']);
+          localStorage.setString('user', json.encode(body['user']));
+          localStorage.setString('expiry', '');
+          _navigateToBooks();
+        }
+      } else {
+        EasyLoading.showError('Failed to Login');
+        if (mounted) {
+          setState(() {
+            isButtonEnabled = true;
+          });
+        }
+      }
+    } catch (e) {
+      // print('Error during login: $e');
+      EasyLoading.showError('An error occurred during login');
+      if (mounted) {
+        setState(() {
+          isButtonEnabled = true;
+        });
+      }
+    } finally {
+      EasyLoading.dismiss();
+      if (mounted) {
+        setState(() {
+          isButtonEnabled = true;
+        });
+      }
+    }
+    if (mounted) {
+      setState(() {
+        isButtonEnabled = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final double height = MediaQuery.of(context).size.height;
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 300),
+      child: Form(
+        // key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextFormField(
+              controller: emailController,
+              validator: (value) {
+                // add email validation
+                if (value == null || value.isEmpty) {
+                  return 'Please enter some text';
+                }
 
-    return WillPopScope(
-      onWillPop: () async {
-        // Prevent navigating back by returning false
-        return false;
-      },
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: SizedBox(
-          height: height,
-          // padding: const EdgeInsets.only(left: 30, right: 30),
-          child: Stack(
-            children: <Widget>[
-              Positioned(
-                top: -height * .18,
-                right: -MediaQuery.of(context).size.width * .4,
-                child: const BezierContainer(),
+                bool emailValid = RegExp(
+                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                    .hasMatch(value);
+                if (!emailValid) {
+                  return 'Please enter a valid email';
+                }
+
+                return null;
+              },
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                hintText: 'Enter your email',
+                prefixIcon: Icon(Icons.email_outlined),
+                border: OutlineInputBorder(),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(height: height * 0.1),
-                      CircleAvatar(
-                        radius: 70,
-                        backgroundColor: Colors.transparent,
-                        child: Image.asset("img/liceo-logo.png"),
-                      ),
-                      _title(),
-                      const SizedBox(
-                        height: 50,
-                      ),
-                      _emailPasswordWidget(),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      _submitButton(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          child: const Text('Forgot Password ?',
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w500)),
-                          onTap: () {
-                            EasyLoading.showInfo(
-                                'Please inform the school authority or your teacher for further assistance.');
-                          },
-                        ),
-                      ),
-                      // _createAccountLabel(),
-                    ],
+            ),
+            _gap(),
+            TextFormField(
+              controller: passwordController,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter some text';
+                }
+
+                if (value.length < 6) {
+                  return 'Password must be at least 6 characters';
+                }
+                return null;
+              },
+              obscureText: !_isPasswordVisible,
+              decoration: InputDecoration(
+                  labelText: 'Password',
+                  hintText: 'Enter your password',
+                  prefixIcon: const Icon(Icons.lock_outline_rounded),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(_isPasswordVisible
+                        ? Icons.visibility_off
+                        : Icons.visibility),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  )),
+            ),
+            _gap(),
+            // CheckboxListTile(
+            //   value: _rememberMe,
+            //   onChanged: (value) {
+            //     if (value == null) return;
+            //     setState(() {
+            //       _rememberMe = value;
+            //     });
+            //   },
+            //   title: const Text('Remember me'),
+            //   controlAffinity: ListTileControlAffinity.leading,
+            //   dense: true,
+            //   contentPadding: const EdgeInsets.all(0),
+            // ),
+            _gap(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isButtonEnabled
+                      ? const Color.fromRGBO(141, 31, 31, 1)
+                      : Colors.grey,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4)),
+                ),
+                onPressed: isButtonEnabled
+                    ? () {
+                        if (emailController.text.isEmpty ||
+                            passwordController.text.isEmpty) {
+                          EasyLoading.showToast(
+                            'Fill all fields!',
+                            toastPosition: EasyLoadingToastPosition.bottom,
+                          );
+                        } else {
+                          setState(() {
+                            isButtonEnabled = false;
+                          });
+                          _login();
+                        }
+                      }
+                    : null,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    'Sign in',
+                    style: GoogleFonts.prompt(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
-}
 
-class TextInput extends StatefulWidget {
-  final String textString;
-  final TextEditingController textController;
-  final String hint;
-  final bool obscureText;
-
-  const TextInput({
-    Key? key,
-    required this.textString,
-    required this.textController,
-    required this.hint,
-    this.obscureText = false,
-  }) : super(key: key);
-
-  @override
-  State<TextInput> createState() => _TextInputState();
-}
-
-class _TextInputState extends State<TextInput> {
-  bool _obscureText = true;
-  final _focusNode = FocusNode();
-  bool _isFocused = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode.addListener(_onFocusChange);
-  }
-
-  void _onFocusChange() {
-    setState(() {
-      _isFocused = _focusNode.hasFocus;
-    });
-  }
-
-  @override
-  void dispose() {
-    _focusNode.removeListener(_onFocusChange);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      style: const TextStyle(color: Color(0xFF000000)),
-      cursorColor: const Color(0xFF9b9b9b),
-      controller: widget.textController,
-      keyboardType: TextInputType.text,
-      obscureText: widget.textString == "Password" ? _obscureText : false,
-      focusNode: _focusNode,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(
-            color: _isFocused ? Colors.blue : Colors.grey,
-            width: 2.0,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: Colors.blue,
-            width: 2.0,
-          ),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 15, horizontal: 16), // Adjust the vertical padding here
-        hintText: widget.textString,
-        hintStyle: const TextStyle(
-          color: Color(0xFF9b9b9b),
-          fontSize: 15,
-          fontWeight: FontWeight.normal,
-        ),
-        suffixIcon: widget.textString == "Password"
-            ? IconButton(
-                icon: Icon(
-                  _obscureText ? Icons.visibility : Icons.visibility_off,
-                  color: Colors.grey,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscureText = !_obscureText;
-                  });
-                },
-              )
-            : null,
-      ),
-    );
-  }
+  Widget _gap() => const SizedBox(height: 16);
 }
