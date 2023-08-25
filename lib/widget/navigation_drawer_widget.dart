@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:ebooks/components/copyright.dart';
 import 'package:ebooks/data/drawer_items.dart';
 import 'package:ebooks/models/drawer_item.dart';
 import 'package:ebooks/pages/nav_main.dart';
 import 'package:ebooks/pages/profile_page.dart';
 import 'package:ebooks/provider/navigation_provider.dart';
 import 'package:ebooks/signup_login/sign_in.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
@@ -108,114 +110,80 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     var isCollapsed = provider.isCollapsed;
     currentPage = provider.currentPage;
 
-    return SizedBox(
-      width: isCollapsed ? MediaQuery.of(context).size.width * 0.2 : null,
-      child: Drawer(
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(141, 31, 31, 1),
-                Color.fromRGBO(141, 31, 31, 1),
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+      bool isWide = constraints.maxWidth > 1000;
+      return SizedBox(
+        width: isCollapsed && isWide && kIsWeb
+            ? 100
+            : isCollapsed &&
+                    constraints.maxWidth < 1000 &&
+                    constraints.maxWidth > 800 &&
+                    kIsWeb
+                ? MediaQuery.of(context).size.width * 0.1
+                : isCollapsed && constraints.maxWidth <= 800 && kIsWeb
+                    ? 80
+                    : isCollapsed && !kIsWeb
+                        ? MediaQuery.of(context).size.width * 0.2
+                        : null,
+        child: Drawer(
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromRGBO(141, 31, 31, 1),
+                  Color.fromRGBO(141, 31, 31, 1),
+                ],
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+              ),
+            ),
+            // color: const Color(0xff292735),
+            child: Column(
+              children: [
+                // if (constraints.maxWidth < 1000)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 0).add(safeArea),
+                  width: double.infinity,
+                  color: Colors.white12,
+                  child: buildHeader(isCollapsed, constraints.maxWidth >= 1000),
+                ),
+                const SizedBox(height: 24),
+                buildList(items: itemsFirst, isCollapsed: isCollapsed),
+                const SizedBox(height: 24),
+                const Divider(
+                  color: Colors.white24,
+                ),
+                buildProfileCircle(isCollapsed),
+                const SizedBox(
+                  height: 20,
+                ),
+                const Divider(
+                  color: Colors.white24,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                const Spacer(),
+                buildLogout(items: itemsFirst2, isCollapsed: isCollapsed),
+                const SizedBox(height: 30),
+                Wrap(
+                  children: [
+                    if (!isCollapsed)
+                      const Copyright(
+                        labelColor: Colors.white,
+                      ),
+                    buildCollapseIcon(context, isCollapsed),
+                  ],
+                ),
+                const SizedBox(height: 20),
               ],
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
             ),
           ),
-          // color: const Color(0xff292735),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 0).add(safeArea),
-                width: double.infinity,
-                color: Colors.white12,
-                child: buildHeader(isCollapsed),
-              ),
-              const SizedBox(height: 24),
-              buildList(items: itemsFirst, isCollapsed: isCollapsed),
-              const SizedBox(height: 24),
-              const Divider(
-                color: Colors.white24,
-              ),
-              buildProfileCircle(isCollapsed),
-              const SizedBox(
-                height: 20,
-              ),
-              const Divider(
-                color: Colors.white24,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              const Spacer(),
-              buildLogout(items: itemsFirst2, isCollapsed: isCollapsed),
-              const SizedBox(height: 30),
-              !isCollapsed
-                  ? Center(
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.copyright_outlined,
-                              color: Colors.white,
-                              size: 18.0,
-                            ),
-                            const SizedBox(
-                              width: 8,
-                            ),
-                            Text(
-                              'Copyright 2023',
-                              style: GoogleFonts.poppins(
-                                  color: Colors.white, fontSize: 12),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              'Powered by',
-                              style: GoogleFonts.poppins(
-                                  color: Colors.white, fontSize: 12),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(
-                              width: 8,
-                            ),
-                            CircleAvatar(
-                              radius: 15,
-                              backgroundColor: Colors.transparent,
-                              child: Image.asset(
-                                "img/cklogo.png",
-                                height: 25,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 8,
-                            ),
-                            buildCollapseIcon(context, isCollapsed),
-                          ],
-                        ),
-                      ),
-                    )
-                  : CircleAvatar(
-                      radius: 15,
-                      backgroundColor: Colors.transparent,
-                      child: Image.asset(
-                        "img/cklogo.png",
-                        height: 25,
-                      ),
-                    ),
-              isCollapsed
-                  ? buildCollapseIcon(context, isCollapsed)
-                  : const SizedBox(height: 12),
-            ],
-          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   // Pdf Tile
@@ -388,25 +356,28 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     );
   }
 
-  Widget buildHeader(bool isCollapsed) => isCollapsed
+  Widget buildHeader(bool isCollapsed, bool iscons) => isCollapsed
       ? Container(
           padding: const EdgeInsets.only(bottom: 22, top: 22),
-          child: const Image(
-            width: 50,
-            height: 50,
-            image: AssetImage("img/liceo-logo.png"),
-          ),
+          child: !iscons
+              ? const Image(
+                  width: 50,
+                  height: 50,
+                  image: AssetImage("img/liceo-logo.png"),
+                )
+              : null,
         )
       : Container(
           padding: const EdgeInsets.only(bottom: 22, top: 22),
           child: Row(
             children: [
               const SizedBox(width: 24),
-              const Image(
-                width: 50,
-                height: 50,
-                image: AssetImage("img/liceo-logo.png"),
-              ),
+              if (!iscons)
+                const Image(
+                  width: 50,
+                  height: 50,
+                  image: AssetImage("img/liceo-logo.png"),
+                ),
               const SizedBox(width: 16),
               RichText(
                 textAlign: TextAlign.center,

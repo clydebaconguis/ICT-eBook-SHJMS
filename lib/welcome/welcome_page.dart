@@ -1,6 +1,7 @@
 import 'package:concentric_transition/concentric_transition.dart';
 import 'package:ebooks/auth/auth_page.dart';
 import 'package:ebooks/pages/nav_main.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,7 +35,7 @@ class Welcome extends StatefulWidget {
 }
 
 class _WelcomeState extends State<Welcome> {
-  bool isLoggedIn = false;
+  late bool isLoggedIn;
   @override
   void initState() {
     _checkLoginStatus();
@@ -45,9 +46,9 @@ class _WelcomeState extends State<Welcome> {
   _checkLoginStatus() async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     var token = localStorage.getString('token') ?? '';
-    if (token.isNotEmpty) {
+    if (mounted) {
       setState(() {
-        isLoggedIn = true;
+        isLoggedIn = token.isNotEmpty;
       });
     }
     isLoggedIn ? navigateToMainNav() : {};
@@ -70,48 +71,52 @@ class _WelcomeState extends State<Welcome> {
   }
 
   changeStatusBarColor(Color color) async {
-    await FlutterStatusbarcolor.setStatusBarColor(color);
-    if (useWhiteForeground(color)) {
-      FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
-    } else {
-      FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    if (!kIsWeb) {
+      await FlutterStatusbarcolor.setStatusBarColor(color);
+      if (useWhiteForeground(color)) {
+        FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+      } else {
+        FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
-      body: ConcentricPageView(
-        onFinish: () => checkAuth(),
-        colors: pages.map((p) => p.bgColor).toList(),
-        onChange: (page) => changeStatusBarColor(pages[page].bgColor),
-        radius: screenWidth * 0.1,
-        nextButtonBuilder: (context) => Padding(
-          padding: const EdgeInsets.only(left: 3), // visual center
-          child: Icon(
-            Icons.navigate_next,
-            size: screenWidth * 0.08,
-          ),
-        ),
-        // enable itemcount to disable infinite scroll
-        // itemCount: pages.length,
-        // opacityFactor: 2.0,
-        scaleFactor: 2,
-        // verticalPosition: 0.7,
-        // direction: Axis.vertical,
-        itemCount: pages.length,
-        // physics: NeverScrollableScrollPhysics(),
-        itemBuilder: (index) {
-          final page = pages[index % pages.length];
-          return SafeArea(
-            child: _Page(
-              page: page,
+    return !isLoggedIn
+        ? Scaffold(
+            body: ConcentricPageView(
+              onFinish: () => checkAuth(),
+              colors: pages.map((p) => p.bgColor).toList(),
+              onChange: (page) => changeStatusBarColor(pages[page].bgColor),
+              radius: screenWidth * 0.1,
+              nextButtonBuilder: (context) => Padding(
+                padding: const EdgeInsets.only(left: 3), // visual center
+                child: Icon(
+                  Icons.navigate_next,
+                  size: screenWidth * 0.08,
+                ),
+              ),
+              // enable itemcount to disable infinite scroll
+              // itemCount: pages.length,
+              // opacityFactor: 2.0,
+              scaleFactor: 2,
+              // verticalPosition: 0.7,
+              // direction: Axis.vertical,
+              itemCount: pages.length,
+              // physics: NeverScrollableScrollPhysics(),
+              itemBuilder: (index) {
+                final page = pages[index % pages.length];
+                return SafeArea(
+                  child: _Page(
+                    page: page,
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
-    );
+          )
+        : const SizedBox.shrink();
   }
 }
 

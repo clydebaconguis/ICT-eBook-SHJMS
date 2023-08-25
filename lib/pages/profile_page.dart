@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:ebooks/pages/nav_main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,134 +36,148 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     // final double height = MediaQuery.of(context).size.height;
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          title: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  "Profile",
-                  style: GoogleFonts.prompt(
-                    textStyle: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 18),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return Scaffold(
+          backgroundColor: Colors.white,
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const MyNav(),
+                    ),
+                    (Route<dynamic> route) => false);
+              },
+            ),
+            title: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    "Profile",
+                    style: GoogleFonts.prompt(
+                      textStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 18),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    softWrap: true,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  softWrap: true,
                 ),
-              ),
-            ],
-          ),
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromRGBO(141, 31, 31, 1),
-                  Color.fromRGBO(141, 31, 31, 1),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+              ],
+            ),
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color.fromRGBO(141, 31, 31, 1),
+                    Color.fromRGBO(141, 31, 31, 1),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
             ),
           ),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(
-                height: 5,
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Card(
-                      margin: const EdgeInsets.all(12),
-                      elevation: 0.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.2),
-                              offset: const Offset(0.0, 0.0),
-                              blurRadius: 18.0,
-                              spreadRadius: 4.0,
-                            )
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                height: 10,
+          body: SingleChildScrollView(
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 700),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Card(
+                            margin: const EdgeInsets.all(12),
+                            elevation: 0.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(5.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    offset: const Offset(0.0, 0.0),
+                                    blurRadius: 18.0,
+                                    spreadRadius: 4.0,
+                                  )
+                                ],
                               ),
-                              const CircleAvatar(
-                                backgroundColor:
-                                    Color.fromARGB(255, 140, 228, 243),
-                                radius: 60.0,
-                                backgroundImage: AssetImage(
-                                  'img/anonymous.jpg', // Replace with the actual profile picture URL
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    const CircleAvatar(
+                                      backgroundColor:
+                                          Color.fromARGB(255, 140, 228, 243),
+                                      radius: 60.0,
+                                      backgroundImage: AssetImage(
+                                        'img/anonymous.jpg', // Replace with the actual profile picture URL
+                                      ),
+                                    ),
+                                    const SizedBox(height: 22),
+                                    Text(
+                                      user.name,
+                                      style: GoogleFonts.prompt(
+                                        fontSize: 22.0,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 25.0),
+                                    buildProfileItem(
+                                        Icons.phone,
+                                        'Phone',
+                                        user.mobilenum.isNotEmpty
+                                            ? user.mobilenum
+                                            : 'Not Specified'),
+                                    const Divider(),
+                                    buildProfileItem(
+                                        Icons.school,
+                                        'Grade Level',
+                                        grade.isNotEmpty
+                                            ? grade
+                                            : 'Not Specified'),
+                                    const Divider(),
+                                    buildProfileItem(
+                                        Icons.email,
+                                        'Email',
+                                        user.email.isNotEmpty
+                                            ? user.email
+                                            : 'Not Specified'),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 22),
-                              Text(
-                                user.name,
-                                style: GoogleFonts.prompt(
-                                  fontSize: 22.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 25.0),
-                              buildProfileItem(
-                                  Icons.phone,
-                                  'Phone',
-                                  user.mobilenum.isNotEmpty
-                                      ? user.mobilenum
-                                      : 'Not Specified'),
-                              const Divider(),
-                              buildProfileItem(Icons.school, 'Grade Level',
-                                  grade.isNotEmpty ? grade : 'Not Specified'),
-                              const Divider(),
-                              buildProfileItem(
-                                  Icons.email,
-                                  'Email',
-                                  user.email.isNotEmpty
-                                      ? user.email
-                                      : 'Not Specified'),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            ],
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

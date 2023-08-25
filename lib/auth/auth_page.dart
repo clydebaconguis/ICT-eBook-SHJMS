@@ -1,4 +1,5 @@
 import 'package:ebooks/pages/nav_main.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_app_backend/pages/article_page.dart';
 import 'package:ebooks/signup_login/sign_in.dart';
@@ -18,16 +19,17 @@ class _AuthPageState extends State<AuthPage> {
   @override
   void initState() {
     _checkLoginStatus();
-    changeStatusBarColor(const Color.fromRGBO(141, 31, 31, 1));
     super.initState();
   }
 
   changeStatusBarColor(Color color) async {
-    await FlutterStatusbarcolor.setStatusBarColor(color);
-    if (useWhiteForeground(color)) {
-      FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
-    } else {
-      FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    if (!kIsWeb) {
+      await FlutterStatusbarcolor.setStatusBarColor(color);
+      if (useWhiteForeground(color)) {
+        FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+      } else {
+        FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+      }
     }
   }
 
@@ -43,6 +45,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   navigateToMainNav() {
+    changeStatusBarColor(const Color.fromRGBO(141, 31, 31, 1));
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (context) => const MyNav(),

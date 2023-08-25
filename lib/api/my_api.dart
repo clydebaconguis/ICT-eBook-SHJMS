@@ -1,4 +1,4 @@
-import 'dart:convert';
+// import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,16 +25,25 @@ class CallApi {
     //     body: jsonEncode(data), headers: _setHeaders());
   }
 
+  // login(data, apiUrl) async {
+  //   // var domain = await _loadSavedDomainName();
+  //   // if (domain.isNotEmpty) {
+  //   //   var fullUrl = '$domain/api/$apiUrl';
+  //   //   return await http.post(Uri.parse(fullUrl),
+  //   //       body: jsonEncode(data), headers: _setHeaders());
+  //   // }
+  //   var fullUrl = '$_domain$apiUrl';
+  //   return await http.post(
+  //     Uri.parse(fullUrl),
+  //     body: jsonEncode(data),
+  //   );
+  // }
+
   login(data, apiUrl) async {
-    // var domain = await _loadSavedDomainName();
-    // if (domain.isNotEmpty) {
-    //   var fullUrl = '$domain/api/$apiUrl';
-    //   return await http.post(Uri.parse(fullUrl),
-    //       body: jsonEncode(data), headers: _setHeaders());
-    // }
-    var fullUrl = '$_domain$apiUrl';
-    return await http.post(Uri.parse(fullUrl),
-        body: jsonEncode(data), headers: _setHeaders());
+    // var token = await getToken();
+    var fullUrl =
+        '$_domain$apiUrl?email=${data['email']}&password=${data['password']}';
+    return await http.post(Uri.parse(fullUrl));
   }
 
   // getData(apiUrl) async {
@@ -42,10 +51,10 @@ class CallApi {
   //   return await http.get(Uri.parse(fullUrl), headers: _setHeaders());
   // }
 
-  _setHeaders() => {
-        'Content-type': 'application/json',
-        'Accept': 'application/json',
-      };
+  // _setHeaders() => {
+  //       'Content-type': 'application/json',
+  //       'Accept': 'application/json',
+  //     };
 
   getToken() async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
@@ -57,6 +66,6 @@ class CallApi {
     // var domain = await _loadSavedDomainName();
     // var fullUrl = '$domain/api/$apiUrl';
     var fullUrl = '$_domain$apiUrl';
-    return await http.get(Uri.parse(fullUrl), headers: _setHeaders());
+    return await http.get(Uri.parse(fullUrl));
   }
 }

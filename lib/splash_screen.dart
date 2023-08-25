@@ -4,6 +4,7 @@ import 'package:ebooks/app_util.dart';
 import 'package:ebooks/pages/nav_main.dart';
 import 'package:ebooks/signup_login/sign_in.dart';
 import 'package:ebooks/welcome/welcome_page.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -78,11 +79,13 @@ class _SplashState extends State<Splash> {
   }
 
   changeStatusBarColor(Color color) async {
-    await FlutterStatusbarcolor.setStatusBarColor(color);
-    if (useWhiteForeground(color)) {
-      FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
-    } else {
-      FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    if (!kIsWeb) {
+      await FlutterStatusbarcolor.setStatusBarColor(color);
+      if (useWhiteForeground(color)) {
+        FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+      } else {
+        FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+      }
     }
   }
 
@@ -90,7 +93,7 @@ class _SplashState extends State<Splash> {
     EasyLoading.instance
       ..displayDuration = const Duration(milliseconds: 2000)
       ..indicatorType = EasyLoadingIndicatorType.fadingCube
-      ..loadingStyle = EasyLoadingStyle.dark
+      ..loadingStyle = kIsWeb ? EasyLoadingStyle.dark : EasyLoadingStyle.light
       ..indicatorSize = 45.0
       ..radius = 10.0
       ..progressColor = Colors.green
