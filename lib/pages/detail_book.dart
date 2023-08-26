@@ -486,8 +486,8 @@ class _DetailBookPageState extends State<DetailBookPage> {
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color.fromRGBO(141, 31, 31, 1),
-                    Color.fromRGBO(141, 31, 31, 1),
+                    Color.fromRGBO(11, 11, 99, 1),
+                    Color.fromRGBO(11, 11, 99, 1),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,

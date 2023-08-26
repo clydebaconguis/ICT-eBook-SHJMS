@@ -30,7 +30,7 @@ class _NavMainState extends State<NavMain> {
   @override
   void initState() {
     getUser();
-    changeStatusBarColor(const Color.fromRGBO(141, 31, 31, 1));
+    changeStatusBarColor(const Color.fromRGBO(11, 11, 99, 1));
     super.initState();
   }
 
@@ -79,8 +79,8 @@ class _NavMainState extends State<NavMain> {
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color.fromRGBO(141, 31, 31, 1),
-                    Color.fromRGBO(141, 31, 31, 1),
+                    Color.fromRGBO(11, 11, 99, 1),
+                    Color.fromRGBO(11, 11, 99, 1),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -91,14 +91,14 @@ class _NavMainState extends State<NavMain> {
             title: Row(
               children: [
                 Image.asset(
-                  "img/liceo-logo.png",
+                  "img/SHJMS.jpg",
                   height: 48,
                   width: 48,
                 ),
                 !isWide
                     ? Expanded(
                         child: Text(
-                          "Liceo De Cagayan",
+                          "Sacred Heart of Jesus Montessori School",
                           style: GoogleFonts.prompt(
                             textStyle: const TextStyle(
                               color: Colors.white,
@@ -114,7 +114,7 @@ class _NavMainState extends State<NavMain> {
                     : Padding(
                         padding: const EdgeInsets.only(left: 10),
                         child: Text(
-                          "Liceo De Cagayan",
+                          "Sacred Heart of Jesus Montessori School",
                           style: GoogleFonts.prompt(
                             textStyle: TextStyle(
                               color: Colors.white,

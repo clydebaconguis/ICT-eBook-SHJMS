@@ -118,14 +118,14 @@ class _SplashState extends State<Splash> {
         splashIconSize: 100,
         duration: 2000,
         centered: true,
-        splash: 'img/liceo-logo.png',
+        splash: 'img/SHJMS.jpg',
         nextScreen: expired
             ? const SignIn()
             : loggedIn
                 ? const MyNav()
                 : const Welcome(),
         splashTransition: SplashTransition.sizeTransition,
-        pageTransitionType: PageTransitionType.fade,
+        pageTransitionType: PageTransitionType.leftToRight,
         backgroundColor: Colors.white,
       ),
       builder: EasyLoading.init(),

@@ -82,13 +82,13 @@ class _Logo extends StatelessWidget {
           style: GoogleFonts.prompt(
             fontSize: 30,
             fontWeight: FontWeight.bold,
-            color: const Color.fromRGBO(141, 31, 31, 1),
+            color: const Color.fromRGBO(11, 11, 99, 1),
           ),
           children: [
             TextSpan(
               text: ' e',
               style: GoogleFonts.prompt(
-                color: const Color.fromRGBO(242, 167, 0, 1),
+                color: const Color.fromRGBO(180, 45, 52, 1),
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
@@ -96,7 +96,7 @@ class _Logo extends StatelessWidget {
             TextSpan(
               text: 'Book',
               style: GoogleFonts.prompt(
-                color: const Color.fromRGBO(242, 167, 0, 1),
+                color: const Color.fromRGBO(180, 45, 52, 1),
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
@@ -117,7 +117,7 @@ class _Logo extends StatelessWidget {
         CircleAvatar(
           radius: isSmallScreen ? 60 : 90,
           backgroundColor: Colors.transparent,
-          child: Image.asset("img/liceo-logo.png"),
+          child: Image.asset("img/SHJMS.jpg"),
         ),
         Padding(
             padding: isSmallScreen
@@ -336,7 +336,7 @@ class __FormContentState extends State<_FormContent> {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: isButtonEnabled
-                    ? const Color.fromRGBO(141, 31, 31, 1)
+                    ? const Color.fromRGBO(11, 11, 99, 1)
                     : Colors.grey,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4)),

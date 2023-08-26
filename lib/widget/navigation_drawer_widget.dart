@@ -131,8 +131,8 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color.fromRGBO(141, 31, 31, 1),
-                  Color.fromRGBO(141, 31, 31, 1),
+                  Color.fromRGBO(11, 11, 99, 1),
+                  Color.fromRGBO(11, 11, 99, 1),
                 ],
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft,
@@ -363,7 +363,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
               ? const Image(
                   width: 50,
                   height: 50,
-                  image: AssetImage("img/liceo-logo.png"),
+                  image: AssetImage("img/SHJMS.jpg"),
                 )
               : null,
         )
@@ -376,7 +376,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                 const Image(
                   width: 50,
                   height: 50,
-                  image: AssetImage("img/liceo-logo.png"),
+                  image: AssetImage("img/SHJMS.jpg"),
                 ),
               const SizedBox(width: 16),
               RichText(
